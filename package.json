@@ -1,5 +1,6 @@
 {
-  "name": "application-name",
+  "name": "workpad",
+  "description":"this is workpad demo rewrite by node",
   "version": "0.0.1",
   "private": true,
   "scripts": {
