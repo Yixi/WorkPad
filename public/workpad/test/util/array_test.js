@@ -22,6 +22,6 @@ test("get()",function(){
 });
 
 test("unique()",function(){
-    deepEqual(workpad.util.array([1,1,1,2,4,5,2,1]),[1,2,4,5]);
-    deepEqual(workpad.util.array(["a","b","c","a","e"]),["a","b","c","e"]);
+    deepEqual(workpad.util.array([1,1,1,2,4,5,2,1]).unique(),[1,2,4,5]);
+    deepEqual(workpad.util.array(["a","b","c","a","e"]).unique(),["a","b","c","e"]);
 });
