@@ -8,7 +8,10 @@ OPEN = $(shell which xdg-open || which gnome-open || which open)
 OUTPUT_URI = ${BASEURI}/dist
 
 WORKPAD_OUTPUT = "${OUTPUT_URI}/workpad-${VERSION}.js"
-WORKPAD_FILES = ${BASEURI}/src/workpad.js
+WORKPAD_FILES = ${BASEURI}/src/workpad.js \
+  ${BASEURI}/src/util/array.js \
+  ${BASEURI}/src/util/string.js
+
 
 
 all: bundle minify
