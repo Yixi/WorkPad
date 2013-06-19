@@ -16,6 +16,8 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/util/string.js \
   ${BASEURI}/src/util/object.js \
   ${BASEURI}/src/util/events.js \
+  ${BASEURI}/src/dom/class.js \
+  ${BASEURI}/src/dom/observe.js \
   ${BASEURI}/src/views/view.js \
   ${BASEURI}/src/views/wp.js \
   ${BASEURI}/src/init.js
