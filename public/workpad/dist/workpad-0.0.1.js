@@ -3645,4 +3645,131 @@ workpad.browser = (function(){
             }
         }
     };
-})();
+})();workpad.util.Events = Base.extend({
+    on:function(eventName,handler){
+        this.events = this.events || {};
+        this.events[eventName] = this.events[eventName] || [];
+        this.events[eventName].push(handler);
+        return this;
+    },
+
+    off:function(eventName,handler){
+        this.events = this.events || {};
+        var i = 0,
+            handlers,
+            newHandlers;
+        if(eventName){
+            handlers = this.events[eventName] || [];
+            newHandlers = [];
+            for(; i<handlers.length;i++){
+                if(handlers[i] !== handler && handler){
+                    newHandlers.push(handlers[i]);
+                }
+            }
+            this.events[eventName] = newHandlers;
+        }else{
+            //if eventName is empty , clean up all events.
+            this.events = {};
+        }
+        return this;
+    },
+
+    fire:function(eventName,payload){
+        this.events = this.events || {};
+        var handlers = this.events[eventName] || [],
+            i = 0;
+        for(;i<handlers.length;i++){
+            handlers[i].call(this,payload);
+        }
+        return this;
+    }
+});
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * init View area
+ *
+ */
+
+workpad.views.View = Base.extend({
+    constructor:function(parent, Element, config){
+        this.parent = parent;
+        this.element = Element;
+        this.config = config;
+    },
+
+    focus:function(){
+        if(this.element.ownerDocument.querySelector(":focus") === this.element){
+            return;
+        }
+
+        try { this.element.focus(); } catch(e) {}
+    },
+
+    hide:function(){
+        this.element.style.display = "none";
+    },
+
+    show:function(){
+        this.element.style.display = "";
+    },
+
+    disable:function(){
+        this.element.setAttribute("disabled","disabled");
+    },
+
+    enable: function(){
+        this.element.removeAttribute("disabled");
+    }
+});/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * This is workpad edit area constructor.
+ *
+ */
+
+workpad.views.Wp = workpad.views.View.extend({
+    name:"workpad",
+
+    constructor:function(parent,element,config){
+        this.base(parent,element,config);
+    }
+});/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Workpad init .
+ *
+ */
+
+/**
+ *
+ */
+
+
+(function(workpad){
+    var undef;
+
+    var defaultConfig = {
+
+    };
+
+    workpad.Init = workpad.util.Events.extend({
+        constructor:function(element,config){
+            this.element = typeof(element) === "string" ? document.getElementById(element) : element;
+            this.config = workpad.util.object({}).merge(defaultConfig).merge(config).get();
+            this.wp = new workpad.views.Wp(this, this.element, this.config);
+            this.currentView = this.wp;
+            this._isCompatible = workpad.browser.supported();
+        }
+    })
+
+})(workpad);

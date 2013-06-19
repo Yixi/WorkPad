@@ -22,7 +22,11 @@
 
     workpad.Init = workpad.util.Events.extend({
         constructor:function(element,config){
-
+            this.element = typeof(element) === "string" ? document.getElementById(element) : element;
+            this.config = workpad.util.object({}).merge(defaultConfig).merge(config).get();
+            this.wp = new workpad.views.Wp(this, this.element, this.config);
+            this.currentView = this.wp;
+            this._isCompatible = workpad.browser.supported();
         }
     })
 
