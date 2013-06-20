@@ -41,7 +41,7 @@
             this.composer = new workpad.views.Composer(this,this.wp, this.config);
             this.currentView = this.composer;
 
-            this.wp.initContentByJson(this.config.initContent);
+            this.wp.initContentByData(this.config.initContent);
         }
     })
 

@@ -12,12 +12,13 @@ var workpad = {
     version: "0.0.1",
 
     // namespaces
-    util:       {},
-    dom:        {},
-    commands:   {},
-    ui:         {},
-    views:      {},
-    log:        {},
+    util:       {},    //for util language extend
+    dom:        {},    //extend dom method
+    commands:   {},    // command center
+    ui:         {},    // UI library , like the drag and drop sort library...
+    views:      {},    // the view layer
+    log:        {},    // the process the data log.
+    data:       {},    // make a sync josn data about the workpad content in memory.
 
     EMPTY_FUNCTION:function(){},
 
@@ -26,7 +27,7 @@ var workpad = {
 
     KEYS:{
         BACKSPACE_KEY:  8,
-        INDENT_KEY:     9,
+        TAB_KEY:        9,
         ENTER_KEY:      13,
         ESCAPE_KEY:     27,
         SPACE_KEY:      32,
@@ -3735,6 +3736,95 @@ workpad.browser = (function(){
 /**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * this is some default data
+ *
+ */
+
+workpad.data.predata = (function(){
+
+    var EMPTY_DATA = [{
+        content:"Begin to edit your workpad",
+        description:"",
+        id:"00000000-0000-0000-0000-000000000000",
+        collapsed:true,
+        children:[]
+    }];
+
+    return {
+        EMPTY_DATA:EMPTY_DATA
+    }
+
+})();
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * This function use for check the workpad json data is right.
+ *
+ */
+
+workpad.data.check = function(jsonData){
+    return {
+        isObject:function(){
+            return typeof(jsonData) === "object" && Object.prototype.toString.call(jsonData).toLowerCase() === "[object object]" && !jsonData.length;
+        }
+    }
+};
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * this will return a right workpad json data, when jsonData isn't a right data will return the pre oder EMPTY_DATA.
+ *
+ */
+
+(function(workpad){
+    var util = workpad.util;
+
+    workpad.data.pretty = function(jsonData){
+        return {
+            /**
+             * get a right data
+             * @returns {[]}
+             */
+            get:function(){
+                if(util.object(jsonData).isArray()){
+                    var newArr = [],
+                        len = jsonData.length,
+                        i = 0;
+                    for(; i<len; i++){
+                        if(workpad.data.check(jsonData[i]).isObject()){
+                            try{
+                                //make the json data is safe
+                                var safeData_ = JSON.stringify(jsonData[i]);
+                                if(safeData_!=="{}"){
+                                    newArr.push(JSON.parse(safeData_));
+                                }
+                            }catch(e){}
+                        }
+                    }
+                    if(newArr.length<1){
+                        newArr = workpad.data.predata.EMPTY_DATA;
+                    }
+                    return newArr;
+
+                }else{
+                    return workpad.data.predata.EMPTY_DATA;
+                }
+            }
+        }
+    }
+})(workpad);
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
  *
  * Author: liuyixi
  *
@@ -4076,6 +4166,8 @@ workpad.views.View = Base.extend({
 
             //make sure commands dispatcher is ready
             this.commands = new workpad.Commands(this.parent);
+
+            this.observe();
         }
 
     });
@@ -4097,8 +4189,16 @@ workpad.views.View = Base.extend({
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
             element = this.element,
+            eidtAreaElement = this.editArea.getEditArea();
             pasteEvents = ["drop","paste"];
 
+
+
+        //Main Event handler.
+
+        dom.observe(eidtAreaElement,"keydown",function(event){
+
+        });
 
     }
 
@@ -4111,28 +4211,40 @@ workpad.views.View = Base.extend({
  * This is workpad edit area constructor.
  *
  */
+(function(workpad){
+    var D = workpad.data;
+    workpad.views.Wp = workpad.views.View.extend({
+        name:"workpad",
 
-workpad.views.Wp = workpad.views.View.extend({
-    name:"workpad",
+        constructor:function(parent,element,config){
+            this.base(parent,element,config);
 
-    constructor:function(parent,element,config){
-        this.base(parent,element,config);
-
-        this._observe();
-    },
-
-
-
-    _observe:function(){
-        var element = this.element,
-            parent = this.parent
-
-    }
+            this._observe();
+        },
 
 
+        initContentByData: function(jsonData){
+            var data = D.pretty(jsonData).get();
+        },
+        /**
+         * private funciton to set the workpad content
+         * @param content {HTMLstring}
+         * @private
+         */
+        _setContent:function(content){
 
+        },
 
-});/**
+        _observe:function(){
+            var element = this.element,
+                parent = this.parent
+
+        }
+    });
+
+})(workpad);
+
+/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -4157,7 +4269,8 @@ workpad.views.Wp = workpad.views.View.extend({
     var undef;
 
     var defaultConfig = {
-
+        //the init Content, this is a workpad josn data.
+        initContent:    undef
     };
 
     workpad.Init = workpad.util.Events.extend({
@@ -4173,6 +4286,8 @@ workpad.views.Wp = workpad.views.View.extend({
 
             this.composer = new workpad.views.Composer(this,this.wp, this.config);
             this.currentView = this.composer;
+
+            this.wp.initContentByData(this.config.initContent);
         }
     })
 
