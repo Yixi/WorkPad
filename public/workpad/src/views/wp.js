@@ -13,5 +13,19 @@ workpad.views.Wp = workpad.views.View.extend({
 
     constructor:function(parent,element,config){
         this.base(parent,element,config);
+
+        this._observe();
+    },
+
+
+
+    _observe:function(){
+        var element = this.element,
+            parent = this.parent
+
     }
+
+
+
+
 });

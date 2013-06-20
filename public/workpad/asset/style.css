@@ -1,0 +1,8 @@
+#workpad{
+    width: 1000px;
+    margin: 5px auto;
+    border: 1px solid #888;
+    padding: 10px;
+    min-height: 800px;
+    box-shadow: 0 0 16px rgba(0,0,0,.2);
+}
