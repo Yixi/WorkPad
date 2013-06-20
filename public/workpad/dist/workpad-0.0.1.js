@@ -3795,6 +3795,31 @@ workpad.browser = (function(){
  * Author: liuyixi
  * Copyright (c) 2013 Yixi
  *
+ * simple dom insert function
+ *
+ */
+
+workpad.dom.insert = function(elementToInsert){
+    return {
+        after: function(element){
+            element.parentNode.insertBefore(elementToInsert,element.nextSibling);
+        },
+
+        before: function(element){
+            element.parentNode.insertBefore(elementToInsert,element);
+        },
+
+        into: function(element){
+            element.appendChild(elementToInsert);
+        }
+    }
+};
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
  * Simple Method to set dom events
  * @example
  *      workpad.dom.observer(document.body,["focus","blur"],function(){....});
@@ -3865,8 +3890,7 @@ workpad.dom.observe = function(element,eventNames,handler){
  *  });
  */
 
-
-(function(workpad){
+;(function(workpad){
 
     /**
      * Default configuration
@@ -3901,6 +3925,10 @@ workpad.dom.observe = function(element,eventNames,handler){
         setContent:function(value){
             this.editArea.value = value;
             return this;
+        },
+
+        getContent:function(){
+            return this.editArea.value;
         },
 
         empty:function(){
@@ -4028,7 +4056,16 @@ workpad.views.View = Base.extend({
 
         _initEditArea:function(){
             var that = this;
-            setTimeout(function(){that._create();},0);
+
+            this.editArea = new dom.editArea(function(){
+               that._create();
+            });
+
+            this.editAreaElement = this.editArea.getEditArea();
+            var wpElement = this.wp.element;
+            dom.insert(this.editAreaElement).after(wpElement);
+
+
         },
 
 

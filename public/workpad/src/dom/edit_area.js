@@ -54,6 +54,10 @@
             return this;
         },
 
+        getContent:function(){
+            return this.editArea.value;
+        },
+
         empty:function(){
             this.editArea.value = "";
             return this;

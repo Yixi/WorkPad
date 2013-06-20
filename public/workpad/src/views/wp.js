@@ -18,6 +18,17 @@ workpad.views.Wp = workpad.views.View.extend({
     },
 
 
+    initContentByJson: function(jsonData){
+
+    },
+    /**
+     * private funciton to set the workpad content
+     * @param content {HTMLstring}
+     * @private
+     */
+     _setContent:function(content){
+
+     },
 
     _observe:function(){
         var element = this.element,

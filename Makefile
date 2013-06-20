@@ -16,8 +16,12 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/util/string.js \
   ${BASEURI}/src/util/object.js \
   ${BASEURI}/src/util/events.js \
+  ${BASEURI}/src/data/predata.js \
+  ${BASEURI}/src/data/check.js \
+  ${BASEURI}/src/data/pretty.js \
   ${BASEURI}/src/dom/class.js \
   ${BASEURI}/src/dom/set_attributes.js \
+  ${BASEURI}/src/dom/insert.js \
   ${BASEURI}/src/dom/observe.js \
   ${BASEURI}/src/dom/edit_area.js \
   ${BASEURI}/src/commands.js \

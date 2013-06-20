@@ -15,8 +15,16 @@
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
             element = this.element,
+            eidtAreaElement = this.editArea.getEditArea();
             pasteEvents = ["drop","paste"];
 
+
+
+        //Main Event handler.
+
+        dom.observe(eidtAreaElement,"keydown",function(event){
+
+        });
 
     }
 

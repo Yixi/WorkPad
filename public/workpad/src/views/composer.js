@@ -24,7 +24,16 @@
 
         _initEditArea:function(){
             var that = this;
-            setTimeout(function(){that._create();},0);
+
+            this.editArea = new dom.editArea(function(){
+               that._create();
+            });
+
+            this.editAreaElement = this.editArea.getEditArea();
+            var wpElement = this.wp.element;
+            dom.insert(this.editAreaElement).after(wpElement);
+
+
         },
 
 
@@ -35,6 +44,8 @@
 
             //make sure commands dispatcher is ready
             this.commands = new workpad.Commands(this.parent);
+
+            this.observe();
         }
 
     });

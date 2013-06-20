@@ -23,7 +23,8 @@
     var undef;
 
     var defaultConfig = {
-
+        //the init Content, this is a workpad josn data.
+        initContent:    undef
     };
 
     workpad.Init = workpad.util.Events.extend({
@@ -39,6 +40,8 @@
 
             this.composer = new workpad.views.Composer(this,this.wp, this.config);
             this.currentView = this.composer;
+
+            this.wp.initContentByJson(this.config.initContent);
         }
     })
 

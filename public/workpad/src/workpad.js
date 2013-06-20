@@ -12,12 +12,13 @@ var workpad = {
     version: "@VERSION",
 
     // namespaces
-    util:       {},
-    dom:        {},
-    commands:   {},
-    ui:         {},
-    views:      {},
-    log:        {},
+    util:       {},    //for util language extend
+    dom:        {},    //extend dom method
+    commands:   {},    // command center
+    ui:         {},    // UI library , like the drag and drop sort library...
+    views:      {},    // the view layer
+    log:        {},    // the process the data log.
+    data:       {},    // make a sync josn data about the workpad content in memory.
 
     EMPTY_FUNCTION:function(){},
 
@@ -26,7 +27,7 @@ var workpad = {
 
     KEYS:{
         BACKSPACE_KEY:  8,
-        INDENT_KEY:     9,
+        TAB_KEY:        9,
         ENTER_KEY:      13,
         ESCAPE_KEY:     27,
         SPACE_KEY:      32,
