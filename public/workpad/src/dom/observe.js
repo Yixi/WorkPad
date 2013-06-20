@@ -54,4 +54,4 @@ workpad.dom.observe = function(element,eventNames,handler){
             }
         }
     }
-}
+};

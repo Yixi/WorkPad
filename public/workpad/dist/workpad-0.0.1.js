@@ -3457,7 +3457,55 @@ workpad.browser = (function(){
                 testElement.setAttribute("on" + eventName,"return;");
                 return typeof(testElement["on" + eventName]) === "function";
             })();
-        }
+        },
+
+
+        /**
+         * Checks whether a document supports a certain queryCommand
+         * In particular, Opera needs a reference to a document that has a contentEditable in it's dom tree
+         * in oder to report correct results
+         *
+         * @param {Object} doc Document object on which to check for a query command
+         * @param {String} command The query command to check for
+         * @return {Boolean}
+         *
+         * @example
+         *    workpad.browser.supportsCommand(document, "bold");
+         */
+        supportsCommand: (function() {
+            // Following commands are supported but contain bugs in some browsers
+            var buggyCommands = {
+                // formatBlock fails with some tags (eg. <blockquote>)
+                "formatBlock":          isIE,
+                // When inserting unordered or ordered lists in Firefox, Chrome or Safari, the current selection or line gets
+                // converted into a list (<ul><li>...</li></ul>, <ol><li>...</li></ol>)
+                // IE and Opera act a bit different here as they convert the entire content of the current block element into a list
+                "insertUnorderedList":  isIE || isWebKit,
+                "insertOrderedList":    isIE || isWebKit
+            };
+
+            // Firefox throws errors for queryCommandSupported, so we have to build up our own object of supported commands
+            var supported = {
+                "insertHTML": isGecko
+            };
+
+            return function(doc, command) {
+                var isBuggy = buggyCommands[command];
+                if (!isBuggy) {
+                    // Firefox throws errors when invoking queryCommandSupported or queryCommandEnabled
+                    try {
+                        return doc.queryCommandSupported(command);
+                    } catch(e1) {}
+
+                    try {
+                        return doc.queryCommandEnabled(command);
+                    } catch(e2) {
+                        return !!supported[command];
+                    }
+                }
+                return false;
+            };
+        })()
 
 
 
@@ -3728,7 +3776,20 @@ workpad.browser = (function(){
         return (elementClassName.length > 0 && (elementClassName == className || new RegExp("(^|\\s)" + className + "(\\s|$)").test(elementClassName)));
     };
 })(workpad);
-/**
+(function(){
+    var mapping = {
+        "className":"class"
+    };
+    workpad.dom.setAttributes = function(attributes){
+        return {
+            on: function(element){
+                for (var i in attributes){
+                    element.setAttribute(mapping[i] || i, attributes[i]);
+                }
+            }
+        };
+    };
+})();/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -3784,7 +3845,123 @@ workpad.dom.observe = function(element,eventNames,handler){
             }
         }
     }
-}
+};
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * eidtArea for bullet points and description.
+ *
+ * - now we just use a textarea for edit area , then sync the content to the bullet point. future will use div for rich edit.
+ *
+ * @param {Function} [readyCallback] Method that gets invoked when the textarea is ready.
+ * @param {Object} [config] Optional parameters
+ *
+ * @example
+ *  new workpad.dom.editArea(function(editArea){
+ *      editArea.setContent("begin to edit your workpad");
+ *  });
+ */
+
+
+(function(workpad){
+
+    /**
+     * Default configuration
+     */
+
+    var doc = document;
+
+    /**
+     * @scope workpad.dom.editArea.prototype.
+     */
+    workpad.dom.editArea = Base.extend({
+
+        constructor:function(readyCallback,config){
+            var that = this;
+            this.callback = readyCallback || workpad.EMPTY_FUNCTION;
+            this.config = workpad.util.object({}).merge(config).get();
+            this.editArea =  this._createTextArea();
+            setTimeout(function() { that.callback(that); }, 0);
+        },
+
+        insertInto:function(element){
+            if (typeof(element) === 'string'){
+                element = doc.getElementById(element);
+            }
+            element.appendChild(this.editArea);
+        },
+
+        getEditArea:function(){
+            return this.editArea;
+        },
+
+        setContent:function(value){
+            this.editArea.value = value;
+            return this;
+        },
+
+        empty:function(){
+            this.editArea.value = "";
+            return this;
+        },
+
+        /**
+         * Creates the textarea element.
+         *
+         * important notes:
+         *  -
+         *
+         * @returns {HTMLElement}
+         * @private
+         */
+        _createTextArea:function(){
+            var that = this,
+                textarea = doc.createElement("textarea");
+            textarea.className = "workpad-editArea";
+            workpad.dom.setAttributes({
+                "width":0,
+                "height":0
+            }).on(textarea);
+
+
+            return textarea;
+        }
+
+    });
+
+})(workpad);
+
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * the workpad commands center
+ *
+ * @example
+ *      var commands = new workpad.Commands(editor);
+ */
+
+workpad.Commands = Base.extend({
+    constructor:function(editor){
+        this.editor = editor;
+        this.composer = editor.composer;
+        this.doc = this.composer.doc;
+    },
+
+    /**
+     *
+     * @param {String}
+     * @returns {*}
+     */
+    support:function(command){
+        return workpad.browser.supportsCommand(this.doc,command);
+    }
+});
 /**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
@@ -3831,6 +4008,69 @@ workpad.views.View = Base.extend({
  * Author: liuyixi
  * Copyright (c) 2013 Yixi
  *
+ * workpad.views.Composer.prototype.
+ *
+ */
+
+(function(workpad){
+    var dom = workpad.dom,
+        browser = workpad.browser,
+        F = workpad.util.fn;
+
+    workpad.views.Composer = workpad.views.View.extend({
+        name:"composer",
+
+        constructor:function(parent, element, config){
+            this.base(parent, element, config);
+            this.wp = this.parent.wp;
+            this._initEditArea();
+        },
+
+        _initEditArea:function(){
+            var that = this;
+            setTimeout(function(){that._create();},0);
+        },
+
+
+        _create:function(){
+            this.doc = document;
+            this.element = this.wp;
+            this.wp = this.parent.wp;
+
+            //make sure commands dispatcher is ready
+            this.commands = new workpad.Commands(this.parent);
+        }
+
+    });
+
+})(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Taking care of events
+ *
+ */
+
+(function(workpad){
+    var dom = workpad.dom,
+        browser = workpad.browser;
+
+    workpad.views.Composer.prototype.observe = function(){
+        var that = this,
+            element = this.element,
+            pasteEvents = ["drop","paste"];
+
+
+    }
+
+})(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
  * This is workpad edit area constructor.
  *
  */
@@ -3840,7 +4080,21 @@ workpad.views.Wp = workpad.views.View.extend({
 
     constructor:function(parent,element,config){
         this.base(parent,element,config);
+
+        this._observe();
+    },
+
+
+
+    _observe:function(){
+        var element = this.element,
+            parent = this.parent
+
     }
+
+
+
+
 });/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
@@ -3852,7 +4106,13 @@ workpad.views.Wp = workpad.views.View.extend({
  */
 
 /**
+ * workpad init constructor.
  *
+ * @param {Element} a div element which should be turned into a outliner edit area.
+ * @param {Object} [config] See defaultConfig object below for explanation of each individual config option
+ *
+ * @events
+ *  ...
  */
 
 
@@ -3870,6 +4130,12 @@ workpad.views.Wp = workpad.views.View.extend({
             this.wp = new workpad.views.Wp(this, this.element, this.config);
             this.currentView = this.wp;
             this._isCompatible = workpad.browser.supported();
+
+
+            //init composer;
+
+            this.composer = new workpad.views.Composer(this,this.wp, this.config);
+            this.currentView = this.composer;
         }
     })
 

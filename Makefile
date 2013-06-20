@@ -19,8 +19,11 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/class.js \
   ${BASEURI}/src/dom/set_attributes.js \
   ${BASEURI}/src/dom/observe.js \
-  ${BASEURI}/src/views/composer.js \
+  ${BASEURI}/src/dom/edit_area.js \
+  ${BASEURI}/src/commands.js \
   ${BASEURI}/src/views/view.js \
+  ${BASEURI}/src/views/composer.js \
+  ${BASEURI}/src/views/composer.observe.js \
   ${BASEURI}/src/views/wp.js \
   ${BASEURI}/src/init.js
 

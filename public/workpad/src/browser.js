@@ -62,7 +62,55 @@ workpad.browser = (function(){
                 testElement.setAttribute("on" + eventName,"return;");
                 return typeof(testElement["on" + eventName]) === "function";
             })();
-        }
+        },
+
+
+        /**
+         * Checks whether a document supports a certain queryCommand
+         * In particular, Opera needs a reference to a document that has a contentEditable in it's dom tree
+         * in oder to report correct results
+         *
+         * @param {Object} doc Document object on which to check for a query command
+         * @param {String} command The query command to check for
+         * @return {Boolean}
+         *
+         * @example
+         *    workpad.browser.supportsCommand(document, "bold");
+         */
+        supportsCommand: (function() {
+            // Following commands are supported but contain bugs in some browsers
+            var buggyCommands = {
+                // formatBlock fails with some tags (eg. <blockquote>)
+                "formatBlock":          isIE,
+                // When inserting unordered or ordered lists in Firefox, Chrome or Safari, the current selection or line gets
+                // converted into a list (<ul><li>...</li></ul>, <ol><li>...</li></ol>)
+                // IE and Opera act a bit different here as they convert the entire content of the current block element into a list
+                "insertUnorderedList":  isIE || isWebKit,
+                "insertOrderedList":    isIE || isWebKit
+            };
+
+            // Firefox throws errors for queryCommandSupported, so we have to build up our own object of supported commands
+            var supported = {
+                "insertHTML": isGecko
+            };
+
+            return function(doc, command) {
+                var isBuggy = buggyCommands[command];
+                if (!isBuggy) {
+                    // Firefox throws errors when invoking queryCommandSupported or queryCommandEnabled
+                    try {
+                        return doc.queryCommandSupported(command);
+                    } catch(e1) {}
+
+                    try {
+                        return doc.queryCommandEnabled(command);
+                    } catch(e2) {
+                        return !!supported[command];
+                    }
+                }
+                return false;
+            };
+        })()
 
 
 
