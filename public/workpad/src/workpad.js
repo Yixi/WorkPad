@@ -18,7 +18,7 @@ var workpad = {
     ui:         {},    // UI library , like the drag and drop sort library...
     views:      {},    // the view layer
     log:        {},    // the process the data log.
-    data:       {},    // make a sync josn data about the workpad content in memory.
+    data:       {},    // make a sync josn tree data about the workpad content in memory.
 
     EMPTY_FUNCTION:function(){},
 
