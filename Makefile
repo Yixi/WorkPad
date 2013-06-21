@@ -12,6 +12,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/lib/base/base.js \
   ${BASEURI}/lib/rangy/rangy-core.js \
   ${BASEURI}/src/browser.js \
+  ${BASEURI}/src/util/debug.js \
   ${BASEURI}/src/util/array.js \
   ${BASEURI}/src/util/string.js \
   ${BASEURI}/src/util/object.js \
@@ -29,6 +30,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/views/composer.js \
   ${BASEURI}/src/views/composer.observe.js \
   ${BASEURI}/src/views/wp.js \
+  ${BASEURI}/src/views/wp.dom.js \
   ${BASEURI}/src/init.js
 
 

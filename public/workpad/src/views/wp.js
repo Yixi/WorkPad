@@ -8,7 +8,9 @@
  *
  */
 (function(workpad){
-    var D = workpad.data;
+    var D = workpad.data,
+        debug = workpad.util.debug;
+
     workpad.views.Wp = workpad.views.View.extend({
         name:"workpad",
 
@@ -20,7 +22,9 @@
 
 
         initContentByData: function(jsonData){
-            var data = D.pretty(jsonData).get();
+            var datas = D.pretty(jsonData).get();
+            var Dom = this.buildDomByDatas(datas);
+            debug(Dom).warn();
         },
         /**
          * private funciton to set the workpad content

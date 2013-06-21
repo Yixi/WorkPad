@@ -18,7 +18,7 @@ var workpad = {
     ui:         {},    // UI library , like the drag and drop sort library...
     views:      {},    // the view layer
     log:        {},    // the process the data log.
-    data:       {},    // make a sync josn data about the workpad content in memory.
+    data:       {},    // make a sync josn tree data about the workpad content in memory.
 
     EMPTY_FUNCTION:function(){},
 
@@ -3515,7 +3515,65 @@ workpad.browser = (function(){
     }
 
 })();
-(function(){
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * main console module.
+ *
+ * @example
+ *      workpad.util.debug("workpad","d").error();
+ *      workpad.util.debug("workpad","d").info();
+ *      workpad.util.debug("workpad","d").debug();
+ */
+
+;(function(workpad){
+    var config = {
+        logLevel:"debug",
+        logLevels:["debug","info","warn","error"]
+    };
+
+    workpad.util.debug = function(){
+
+        var args = Array.prototype.slice.call(arguments);
+
+        function log(params, level){
+            if(config.logLevel === 'never'){
+                return;
+            }
+            var i = config.logLevels.indexOf(level),
+                j = config.logLevels.indexOf(config.logLevel);
+            if (i>-1 && j>-1 && i>=j){
+                if(console[level]){
+                    console[level].apply(console,params);
+                }else{
+                    console.log.apply(console,params);
+                }
+            }
+        }
+
+        return {
+            debug: function(){
+                args.unshift('[WorkPad debug]: ');
+                log(args,'debug');
+            },
+            info: function(){
+                args.unshift('[WorkPad info]: ');
+                log(args,'info');
+            },
+            error: function(){
+                args.unshift('[WorkPad error!!!]: ');
+                log(args,'error');
+            },
+            warn: function(){
+                args.unshift('[Workpad warn!]: ');
+                log(args,'warn');
+            }
+        }
+    };
+})(workpad);(function(){
     workpad.util.array = function(arr){
         return {
 
@@ -4212,7 +4270,9 @@ workpad.views.View = Base.extend({
  *
  */
 (function(workpad){
-    var D = workpad.data;
+    var D = workpad.data,
+        debug = workpad.util.debug;
+
     workpad.views.Wp = workpad.views.View.extend({
         name:"workpad",
 
@@ -4224,7 +4284,9 @@ workpad.views.View = Base.extend({
 
 
         initContentByData: function(jsonData){
-            var data = D.pretty(jsonData).get();
+            var datas = D.pretty(jsonData).get();
+            var Dom = this.buildDomByDatas(datas);
+            debug(Dom).warn();
         },
         /**
          * private funciton to set the workpad content
@@ -4245,6 +4307,68 @@ workpad.views.View = Base.extend({
 })(workpad);
 
 /**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * workpad.views.Wp.prototype
+ *
+ */
+
+;(function(workpad){
+    var dom = workpad.dom,
+        util = workpad.util;
+
+
+    /**
+     * Default Template
+     * @param data
+     */
+
+    //one bullet points
+    var BULLET_POINT =
+        '<div class="" data-id="#{id}">' +
+            '<div class="maindata">' +
+                '<div class="content">#{content}</div>' +
+                '<div class="description">#{description}</div>' +
+            '</div>' +
+            '<div class="children">#{children}</div>' +
+        '</div>';
+
+    workpad.views.Wp.prototype.buildDomByDatas = function(datas){
+        var that = this;
+        function build(datas){
+            var
+                html = "",
+                childrens = "",
+                i = 0,
+                len = datas.length;
+            for(; i<len; i++){
+                var data = datas[i];
+                if(data.children.length > 0 && data.collapse){
+                    childrens = build(data.children);
+                }
+                html += that.buildHTMLBySingleData({
+                    id:data.id,
+                    content:data.content,
+                    description:data.description,
+                    children:childrens
+                });
+            }
+            return html;
+        }
+
+
+        return build(datas);
+    };
+
+
+    workpad.views.Wp.prototype.buildHTMLBySingleData = function(json){
+        return util.string(BULLET_POINT).interpolate(json);
+    };
+
+})(workpad);/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
