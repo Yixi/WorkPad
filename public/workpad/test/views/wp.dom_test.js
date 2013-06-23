@@ -85,10 +85,21 @@ test("Bacic test by Template 1",function(){
     var WP = new workpad.views.Wp();
 
     var html_a ='<div class="" data-id="001"><div class="maindata"><div class="content">title1</div><div class="description">note1</div></div><div class="children"></div></div>';
-
-
+    var html_b ='<div class="" data-id="001"><div class="maindata"><div class="content">title1</div><div class="description">note1</div></div><div class="children"></div></div><div class="" data-id="002"><div class="maindata"><div class="content">title2</div><div class="description">note2</div></div><div class="children"></div></div>';
+    var html_c =
+        '<div class="" data-id="001"><div class="maindata"><div class="content">title1</div><div class="description">note1</div></div><div class="children"></div></div>' +
+        '<div class="" data-id="002"><div class="maindata"><div class="content">title2</div><div class="description">note2</div></div><div class="children">' +
+            '<div class="" data-id="003"><div class="maindata"><div class="content">title3</div><div class="description">note3</div></div><div class="children"></div></div>' +
+            '<div class="" data-id="004"><div class="maindata"><div class="content">title4</div><div class="description">note4</div></div><div class="children"></div></div>' +
+            '<div class="" data-id="005"><div class="maindata"><div class="content">title5</div><div class="description">note5</div></div><div class="children">' +
+                '<div class="" data-id="006"><div class="maindata"><div class="content">title6</div><div class="description">note6</div></div><div class="children"></div></div>' +
+            '</div></div>' +
+        '</div></div>' +
+        '<div class="" data-id="007"><div class="maindata"><div class="content">title7</div><div class="description">note7</div></div><div class="children"></div></div>';
 
     equal(WP.buildDomByDatas(this.data.a),html_a);
+    equal(WP.buildDomByDatas(this.data.b),html_b);
+    equal(WP.buildDomByDatas(this.data.c),html_c);
 
 });
 

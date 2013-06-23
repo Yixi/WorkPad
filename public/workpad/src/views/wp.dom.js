@@ -47,6 +47,7 @@
                     description:data.description,
                     children:childrens
                 });
+                childrens = "";   //need reset the variable when replace complete.
             }
             return html;
         }(datas);
