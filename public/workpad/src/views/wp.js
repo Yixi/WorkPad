@@ -24,15 +24,15 @@
         initContentByData: function(jsonData){
             var datas = D.pretty(jsonData).get();
             var Dom = this.buildDomByDatas(datas);
-            debug(Dom).warn();
+            this._setContent(Dom);
         },
         /**
          * private funciton to set the workpad content
          * @param content {HTMLstring}
          * @private
          */
-        _setContent:function(content){
-
+        _setContent:function(DOMcontent){
+            this.element.innerHTML = DOMcontent;
         },
 
         _observe:function(){

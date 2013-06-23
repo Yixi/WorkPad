@@ -4242,20 +4242,26 @@ workpad.views.View = Base.extend({
 
 (function(workpad){
     var dom = workpad.dom,
+        util = workpad.util,
         browser = workpad.browser;
 
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
-            element = this.element,
+            element = this.parent.element,
             eidtAreaElement = this.editArea.getEditArea();
             pasteEvents = ["drop","paste"];
 
 
+        util.debug(element,eidtAreaElement).debug();
 
         //Main Event handler.
 
         dom.observe(eidtAreaElement,"keydown",function(event){
 
+        });
+
+        dom.observe(element,"mousemove",function(event){
+            util.debug(event.target).info();
         });
 
     }
@@ -4286,15 +4292,15 @@ workpad.views.View = Base.extend({
         initContentByData: function(jsonData){
             var datas = D.pretty(jsonData).get();
             var Dom = this.buildDomByDatas(datas);
-            debug(Dom).warn();
+            this._setContent(Dom);
         },
         /**
          * private funciton to set the workpad content
          * @param content {HTMLstring}
          * @private
          */
-        _setContent:function(content){
-
+        _setContent:function(DOMcontent){
+            this.element.innerHTML = DOMcontent;
         },
 
         _observe:function(){
@@ -4338,7 +4344,7 @@ workpad.views.View = Base.extend({
 
     workpad.views.Wp.prototype.buildDomByDatas = function(datas){
         var that = this;
-        function build(datas){
+        return function build(datas){
             var
                 html = "",
                 childrens = "",
@@ -4355,12 +4361,10 @@ workpad.views.View = Base.extend({
                     description:data.description,
                     children:childrens
                 });
+                childrens = "";   //need reset the variable when replace complete.
             }
             return html;
-        }
-
-
-        return build(datas);
+        }(datas);
     };
 
 

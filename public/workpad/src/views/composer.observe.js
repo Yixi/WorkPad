@@ -10,20 +10,26 @@
 
 (function(workpad){
     var dom = workpad.dom,
+        util = workpad.util,
         browser = workpad.browser;
 
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
-            element = this.element,
+            element = this.parent.element,
             eidtAreaElement = this.editArea.getEditArea();
             pasteEvents = ["drop","paste"];
 
 
+        util.debug(element,eidtAreaElement).debug();
 
         //Main Event handler.
 
         dom.observe(eidtAreaElement,"keydown",function(event){
 
+        });
+
+        dom.observe(element,"mousemove",function(event){
+            util.debug(event.target).info();
         });
 
     }
