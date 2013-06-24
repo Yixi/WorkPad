@@ -3539,38 +3539,31 @@ workpad.browser = (function(){
 
         var args = Array.prototype.slice.call(arguments);
 
-        function log(params, level){
+        var log = function(par,title,level){
             if(config.logLevel === 'never'){
-                return;
+                return workpad.EMPTY_FUNCTION;
             }
             var i = config.logLevels.indexOf(level),
                 j = config.logLevels.indexOf(config.logLevel);
+            // need to clone a new array.
+            var params = workpad.util.array(par).clone();
+            params.unshift(console,title);
+
             if (i>-1 && j>-1 && i>=j){
                 if(console[level]){
-                    console[level].apply(console,params);
+                    return Function.prototype.bind.apply(console[level],params);
                 }else{
-                    console.log.apply(console,params);
+                    return Function.prototype.bind.apply(console.log,params);
                 }
             }
+            return workpad.EMPTY_FUNCTION;
         }
 
         return {
-            debug: function(){
-                args.unshift('[WorkPad debug]: ');
-                log(args,'debug');
-            },
-            info: function(){
-                args.unshift('[WorkPad info]: ');
-                log(args,'info');
-            },
-            error: function(){
-                args.unshift('[WorkPad error!!!]: ');
-                log(args,'error');
-            },
-            warn: function(){
-                args.unshift('[Workpad warn!]: ');
-                log(args,'warn');
-            }
+            error:log(args,'[WorkPad error!!!]: ','error'),
+            debug:log(args,'[WorkPad debug]: ','debug'),
+            info:log(args,'[WorkPad info]: ','info'),
+            warn:log(args,'[Workpad warn!]: ','warn')
         }
     };
 })(workpad);(function(){
@@ -3636,7 +3629,7 @@ workpad.browser = (function(){
             /**
              * unique a array
              * @example
-             *      workpad.util.array([1,1,3,4,3]).unique; //=> [1,3,4]
+             *      workpad.util.array([1,1,3,4,3]).unique(); //=> [1,3,4]
              *
              * @returns {Array}
              */
@@ -3648,6 +3641,22 @@ workpad.browser = (function(){
                     if(!workpad.util.array(newArray).contains(arr[i])){
                         newArray.push(arr[i]);
                     }
+                }
+                return newArray;
+            },
+
+            /**
+             * clone a array
+             * @example
+             *      workpad.util.array([1,2]).clone() //=> [1,2];
+             * @returns {Array}
+             */
+            clone:function(){
+                var newArray = [],
+                    i= 0,
+                    len = arr.length;
+                for(; i<len; i++){
+                    newArray.push(arr[i]);
                 }
                 return newArray;
             }
@@ -4261,7 +4270,7 @@ workpad.views.View = Base.extend({
         });
 
         dom.observe(element,"mousemove",function(event){
-            util.debug(event.target).info();
+//            util.debug(event.target).info();
         });
 
     }

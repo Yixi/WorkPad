@@ -61,7 +61,7 @@
             /**
              * unique a array
              * @example
-             *      workpad.util.array([1,1,3,4,3]).unique; //=> [1,3,4]
+             *      workpad.util.array([1,1,3,4,3]).unique(); //=> [1,3,4]
              *
              * @returns {Array}
              */
@@ -73,6 +73,22 @@
                     if(!workpad.util.array(newArray).contains(arr[i])){
                         newArray.push(arr[i]);
                     }
+                }
+                return newArray;
+            },
+
+            /**
+             * clone a array
+             * @example
+             *      workpad.util.array([1,2]).clone() //=> [1,2];
+             * @returns {Array}
+             */
+            clone:function(){
+                var newArray = [],
+                    i= 0,
+                    len = arr.length;
+                for(; i<len; i++){
+                    newArray.push(arr[i]);
                 }
                 return newArray;
             }
