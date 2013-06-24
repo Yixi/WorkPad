@@ -28,8 +28,10 @@
 
         });
 
-        dom.observe(element,"mousemove",function(event){
-            util.debug(event.target).info();
+        // ----- set the editArea location -----
+        dom.delegate(element,".content","mouseover",function(event){
+            util.debug(event.target).debug();
+
         });
 
     }

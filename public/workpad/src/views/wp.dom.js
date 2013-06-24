@@ -20,7 +20,7 @@
 
     //one bullet points
     var BULLET_POINT =
-        '<div class="" data-id="#{id}">' +
+        '<div class="item" data-id="#{id}">' +
             '<div class="maindata">' +
                 '<div class="content">#{content}</div>' +
                 '<div class="description">#{description}</div>' +

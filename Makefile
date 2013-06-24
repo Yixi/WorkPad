@@ -24,6 +24,8 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/set_attributes.js \
   ${BASEURI}/src/dom/insert.js \
   ${BASEURI}/src/dom/observe.js \
+  ${BASEURI}/src/dom/delegate.js \
+  ${BASEURI}/src/dom/get_parent_element_test.js \
   ${BASEURI}/src/dom/edit_area.js \
   ${BASEURI}/src/commands.js \
   ${BASEURI}/src/views/view.js \

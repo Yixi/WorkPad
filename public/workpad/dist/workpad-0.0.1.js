@@ -4270,7 +4270,7 @@ workpad.views.View = Base.extend({
         });
 
         dom.observe(element,"mousemove",function(event){
-//            util.debug(event.target).info();
+            util.debug(event.target).info();
         });
 
     }

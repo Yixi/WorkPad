@@ -9,7 +9,7 @@
  */
 
 var wp = new workpad.Init("workpad");
-workpad.util.debug("diigo").error();
-workpad.util.debug("diigo").warn();
-workpad.util.debug("abcd").debug();
-workpad.util.debug("job").info();
+//workpad.util.debug("diigo").error();
+//workpad.util.debug("diigo").warn();
+//workpad.util.debug("abcd").debug();
+//workpad.util.debug("job").info();
