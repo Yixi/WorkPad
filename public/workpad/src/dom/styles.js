@@ -114,6 +114,28 @@
         },
 
         /**
+         * get style form element, the @param styles is {String}, but this function return number
+         * @example
+         *      workpad.dom.style("position").getNumberfrom(document.body); //=> 1000
+         * @param element
+         */
+        getNumberFrom:function(element){
+            var value = this.getfrom(element);
+            if(value){
+                value = value.replace("px","");
+            }else{
+                value = 0
+            }
+            var number = parseFloat(value);
+            if(!isNaN(number)){
+                return number;
+            }else{
+                workpad.util.debug("can't return a number about " + styles + " from ", element).error();
+                return 0;
+            }
+        },
+
+        /**
          * copy style to  element and other element , the @param styles is {Ararry}
          * @example
          *      workpad.dom.style(["overflow-y","width"]).copyfrom(textarea).to(div).andTo(anotherDiv);

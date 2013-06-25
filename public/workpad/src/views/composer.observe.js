@@ -16,15 +16,15 @@
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
             element = this.parent.element,
-            eidtAreaElement = this.editArea.getEditArea();
+            editAreaElement = this.editArea.getEditArea();
             pasteEvents = ["drop","paste"];
 
 
-        util.debug(element,eidtAreaElement).debug();
+        util.debug(element,editAreaElement).debug();
 
         //Main Event handler.
 
-        dom.observe(eidtAreaElement,"keydown",function(event){
+        dom.observe(editAreaElement,"keydown",function(event){
 
         });
 
@@ -32,6 +32,7 @@
         dom.delegate(element,".content","mouseover",function(event){
 //            util.debug(event).debug();
             util.debug(dom.offset(event.target).get()).debug();
+            dom.offset(editAreaElement).set(dom.offset(event.target).get());
         });
 
     }

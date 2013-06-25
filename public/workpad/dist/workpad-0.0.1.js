@@ -3949,70 +3949,7 @@ workpad.data.check = function(jsonData){
         return (elementClassName.length > 0 && (elementClassName == className || new RegExp("(^|\\s)" + className + "(\\s|$)").test(elementClassName)));
     };
 })(workpad);
-/**
- * @license workpad v0.0.1
- * https://github.com/Yixi/WorkPad
- * Author: liuyixi
- * Copyright (c) 2013 Yixi
- *
- * Get/set the element offset  from jquery.
- *
- */
-
-;(function(workpad){
-
-    workpad.dom.offset = function(element){
-
-        function isWindow(obj){
-            return obj != null && obj === obj.window;
-        }
-
-        function getWindow( elem ) {
-            return isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
-        }
-
-        return {
-
-            /**
-             * get the element offset of document.
-             *
-             * @example
-             *      workpad.dom.offset(document.getElementById("content")).get()
-             *
-             * @returns {{top: number, left: number}}
-             */
-            get:function(){
-                var doc = element && element.ownerDocument,
-                    box = { top: 0, left: 0},
-                    docElem, win;
-
-                if (! doc){
-                    return;
-                }
-
-                docElem = doc.documentElement;
-
-                if(typeof element.getBoundingClientRect !== (typeof undefined)){
-                    box = element.getBoundingClientRect();
-                }
-                win = getWindow(doc);
-
-                return {
-                    top: box.top + win.pageYOffset - docElem.clientTop,
-                    left: box.left + win.pageXOffset - docElem.clientLeft,
-                    width: box.width,
-                    height: box.height
-                };
-            },
-
-            set:function(){
-
-
-            }
-        }
-    }
-
-})(workpad);(function(){
+(function(){
     var mapping = {
         "className":"class"
     };
@@ -4031,11 +3968,13 @@ workpad.data.check = function(jsonData){
  * Author: liuyixi
  * Copyright (c) 2013 Yixi
  *
- * get / set styles
+ * get / set /copy styles
  *
  */
 
 ;workpad.dom.style = function(styles){
+
+    var dom = workpad.dom;
 
     var stylePropertyMapping = {
         "float": ("styleFloat" in document.createElement('div').style) ? "styleFloat" : "cssFloat"
@@ -4046,6 +3985,25 @@ workpad.data.check = function(jsonData){
            return match.charAt(1).toUpperCase();
         });
     }
+
+
+    var BOX_SIZING_PROPERTIES = ["-webkit-box-sizing", "-moz-box-sizing", "-ms-box-sizing", "box-sizing"];
+    var shouldIgnoreBoxSizingBorderBox = function(element){
+        if(hasBoxSizingBorderBox(element)){
+            return parseInt(dom.style('width').getfrom(element),10) < element.offsetWidth;
+        }
+        return false;
+    }
+    var hasBoxSizingBorderBox = function(element){
+        var i = 0,
+            length = BOX_SIZING_PROPERTIES.length;
+        for(; i<length; i++){
+            if (dom.style(BOX_SIZING_PROPERTIES[i]).getfrom(element) === "border-box"){
+                return BOX_SIZING_PROPERTIES[i];
+            }
+        }
+    }
+
 
     return {
 
@@ -4117,10 +4075,103 @@ workpad.data.check = function(jsonData){
                 }
                 return returnValue;
             }
+        },
+
+        /**
+         * copy style to  element and other element , the @param styles is {Ararry}
+         * @example
+         *      workpad.dom.style(["overflow-y","width"]).copyfrom(textarea).to(div).andTo(anotherDiv);
+         * @param element
+         * @returns {object}
+         */
+        copyfrom:function(element){
+            var stylesToCopy = styles;
+            if(shouldIgnoreBoxSizingBorderBox(element)){
+                stylesToCopy = workpad.util.array(stylesToCopy).without(BOX_SIZING_PROPERTIES);
+            }
+            var cssText = "",
+                length = stylesToCopy.length,
+                i = 0,
+                property;
+
+            for(; i<length; i++){
+                property = stylesToCopy[i];
+                cssText += property + ":" + dom.style(property).getfrom(element) + ";";
+            }
+
+            return {
+                to: function(element){
+                    dom.style(cssText).setto(element);
+                    return { andTo: arguments.callee };
+                }
+            };
         }
-    }
+    };
 }
 /**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Get/set the element offset  from jquery.
+ *
+ */
+
+;(function(workpad){
+
+    workpad.dom.offset = function(element){
+
+        function isWindow(obj){
+            return obj != null && obj === obj.window;
+        }
+
+        function getWindow( elem ) {
+            return isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
+        }
+
+        return {
+
+            /**
+             * get the element offset of document.
+             *
+             * @example
+             *      workpad.dom.offset(document.getElementById("content")).get()
+             *
+             * @returns {{top: number, left: number}}
+             */
+            get:function(){
+                var doc = element && element.ownerDocument,
+                    box = { top: 0, left: 0},
+                    docElem, win;
+
+                if (! doc){
+                    return;
+                }
+
+                docElem = doc.documentElement;
+
+                if(typeof element.getBoundingClientRect !== (typeof undefined)){
+                    box = element.getBoundingClientRect();
+                }
+                win = getWindow(doc);
+
+                return {
+                    top: box.top + win.pageYOffset - docElem.clientTop,
+                    left: box.left + win.pageXOffset - docElem.clientLeft,
+                    width: box.width,
+                    height: box.height
+                };
+            },
+
+            set:function(){
+
+
+            }
+        }
+    }
+
+})(workpad);/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -4358,16 +4409,16 @@ workpad.dom.observe = function(element,eventNames,handler){
         },
 
         setContent:function(value){
-            this.editArea.value = value;
+            this.editArea.getElementsByTagName("textarea")[0].value = value;
             return this;
         },
 
         getContent:function(){
-            return this.editArea.value;
+            return this.editArea.getElementsByTagName("textarea")[0].value;
         },
 
         empty:function(){
-            this.editArea.value = "";
+            this.editArea.getElementsByTagName("textarea")[0].value = "";
             return this;
         },
 
@@ -4382,15 +4433,13 @@ workpad.dom.observe = function(element,eventNames,handler){
          */
         _createTextArea:function(){
             var that = this,
+                textareaWrapper = doc.createElement("div");
                 textarea = doc.createElement("textarea");
-            textarea.className = "workpad-editArea";
-            workpad.dom.setAttributes({
-                "width":0,
-                "height":0
-            }).on(textarea);
+            textareaWrapper.className = "workpad-editArea editor";
+            textareaWrapper.appendChild(textarea);
 
 
-            return textarea;
+            return textareaWrapper;
         }
 
     });
@@ -4551,6 +4600,7 @@ workpad.views.View = Base.extend({
         dom.delegate(element,".content","mouseover",function(event){
 //            util.debug(event).debug();
             util.debug(dom.offset(event.target).get()).debug();
+
         });
 
     }

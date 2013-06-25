@@ -24,9 +24,9 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/data/check.js \
   ${BASEURI}/src/data/pretty.js \
   ${BASEURI}/src/dom/class.js \
-  ${BASEURI}/src/dom/offset.js \
   ${BASEURI}/src/dom/set_attributes.js \
   ${BASEURI}/src/dom/styles.js \
+  ${BASEURI}/src/dom/offset.js \
   ${BASEURI}/src/dom/insert.js \
   ${BASEURI}/src/dom/observe.js \
   ${BASEURI}/src/dom/delegate.js \

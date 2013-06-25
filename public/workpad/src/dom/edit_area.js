@@ -50,16 +50,16 @@
         },
 
         setContent:function(value){
-            this.editArea.value = value;
+            this.editArea.getElementsByTagName("textarea")[0].value = value;
             return this;
         },
 
         getContent:function(){
-            return this.editArea.value;
+            return this.editArea.getElementsByTagName("textarea")[0].value;
         },
 
         empty:function(){
-            this.editArea.value = "";
+            this.editArea.getElementsByTagName("textarea")[0].value = "";
             return this;
         },
 
@@ -74,15 +74,13 @@
          */
         _createTextArea:function(){
             var that = this,
+                textareaWrapper = doc.createElement("div");
                 textarea = doc.createElement("textarea");
-            textarea.className = "workpad-editArea";
-            workpad.dom.setAttributes({
-                "width":0,
-                "height":0
-            }).on(textarea);
+            textareaWrapper.className = "workpad-editArea editor";
+            textareaWrapper.appendChild(textarea);
 
 
-            return textarea;
+            return textareaWrapper;
         }
 
     });
