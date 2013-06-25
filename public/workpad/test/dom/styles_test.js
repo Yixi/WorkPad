@@ -2,10 +2,20 @@ module("workpad.dom.style",{
     setup:function(){
         this.container = document.createElement("div");
         document.body.appendChild(this.container);
+
+        this.div = document.createElement("div");
+        this.span = document.createElement("span");
+        this.anotherDiv = document.createElement("div");
+        document.body.appendChild(this.div);
+        document.body.appendChild(this.span);
+        document.body.appendChild(this.anotherDiv);
     },
 
     teardown:function(){
         this.container.parentNode.removeChild(this.container);
+        this.div.parentNode.removeChild(this.div);
+        this.span.parentNode.removeChild(this.span);
+        this.anotherDiv.parentNode.removeChild(this.anotherDiv);
     }
 });
 
@@ -48,3 +58,45 @@ test("Basic set style test",function(){
     equal(workpad.dom.style("float").getfrom(ele2),"right");
 });
 
+test("Basic style copy test",function(){
+    this.div.style.cssText = "width: 400px; height: 200px; text-align: right; float: left;";
+
+    workpad.dom.style(["width", "height", "text-align", "float"]).copyfrom(this.div).to(this.span)
+
+    equal(workpad.dom.style("width")      .getfrom(this.span), "400px",  "Width correctly copied");
+    equal(workpad.dom.style("height")     .getfrom(this.span), "200px",  "Height correctly copied");
+    equal(workpad.dom.style("text-align") .getfrom(this.span), "right",  "Text-align correctly copied");
+    equal(workpad.dom.style("float")      .getfrom(this.span), "left",   "Float correctly copied");
+});
+
+test("Whether it copies native user agent styles",function(){
+    workpad.dom.style(["display"]).copyfrom(this.span).to(this.div);
+
+    equal(workpad.dom.style("display").getfrom(this.div),"inline","Display correctly copied");
+});
+
+test("Advance style copy test",function(){
+    this.span.style.cssText = "color: rgb(255, 0, 0); -moz-border-radius: 5px 5px 5px 5px;";
+    this.div.style.cssText  = "color: rgb(0, 255, 0); text-decoration: underline;";
+
+    workpad.dom
+        .style(["color", "-moz-border-radius", "unknown-style"])
+        .copyfrom(this.span)
+        .to(this.div)
+        .andTo(this.anotherDiv);
+
+    // Opera and IE internally convert color values either to rgb or hexcode, and some version of IE either
+    // strip or add white spaces between rgb values
+    var divColor = workpad.dom.style("color").getfrom(this.div).replace(/\s+/g, "");
+    ok(divColor == "rgb(255,0,0)" || divColor == "#ff0000", "First div has correct color");
+
+    var anotherDivColor = workpad.dom.style("color").getfrom(this.anotherDiv).replace(/\s+/g, "");
+    ok(anotherDivColor == "rgb(255,0,0)" || anotherDivColor == "#ff0000", "Second div has correct color");
+
+    equal(workpad.dom.style("text-decoration").getfrom(this.div), "underline", "Text-decoration hasn't been overwritten");
+
+    if ("MozBorderRadius" in this.div.style) {
+        equal(workpad.dom.style("-moz-border-radius").getfrom(this.div),        "5px 5px 5px 5px", "First div has correct border-radius");
+        equal(workpad.dom.style("-moz-border-radius").getfrom(this.anotherDiv), "5px 5px 5px 5px", "Second div has correct border-radius");
+    }
+});

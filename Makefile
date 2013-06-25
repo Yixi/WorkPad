@@ -42,11 +42,11 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
 
 
 
-all: bundle minify
+all: bundle minify size
 
 bundle:
+	@@echo "--------------------------------------------------------"
 	@@echo "Bundling..."
-	@@echo "--------------"
 	@@echo "Begin bundling workpad.js"
 	@@touch ${WORKPAD_OUTPUT}
 	@@rm ${WORKPAD_OUTPUT}
@@ -54,26 +54,31 @@ bundle:
 	@@cat ${WORKPAD_OUTPUT} | sed "s/@VERSION/${VERSION}/" > "${WORKPAD_OUTPUT}.tmp"
 	@@mv "${WORKPAD_OUTPUT}.tmp" ${WORKPAD_OUTPUT}
 	@@echo "Bunling workpad.js complete"
-	@@echo "--------------"
+	@@echo "--------------------------------------------------------"
 
 minify:
 	@@echo "Minifying..."
-	@@echo "---------------"
 	@@java -jar ${BASEURI}/tools/compiler.jar \
 	       --compilation_level SIMPLE_OPTIMIZATIONS \
 	       --js ${WORKPAD_OUTPUT} \
 	       --language_in=ECMASCRIPT5_STRICT \
 	       --create_source_map ${WORKPAD_MIN_SOURCEMAP_OUTPUT} \
 	       --source_map_format=V3 \
-	       --js_output_file ${OUTPUT_URI}/1.js
+	       --js_output_file ${WORKPAD_MIN_OUTPUT}
 	@@java -jar ${BASEURI}/tools/compiler.jar \
-	       --js ${OUTPUT_URI}/1.js \
-	       --js_output_file ${OUTPUT_URI}/2.js
+	       --js ${WORKPAD_MIN_OUTPUT} \
+	       --js_output_file ${WORKPAD_MIN_OUTPUT}.tmp
 	@@rm ${WORKPAD_MIN_OUTPUT}
-	@@cat  ${BASEURI}/lincence ${OUTPUT_URI}/2.js ${BASEURI}/sourcemap >> ${WORKPAD_MIN_OUTPUT}
-	@@rm ${OUTPUT_URI}/2.js ${OUTPUT_URI}/1.js
+	@@cat  ${BASEURI}/lincence ${WORKPAD_MIN_OUTPUT}.tmp ${BASEURI}/sourcemap >> ${WORKPAD_MIN_OUTPUT}
+	@@rm ${WORKPAD_MIN_OUTPUT}.tmp
 	@@echo "Minifying workpad-${VERSION}.js complete"
+	@@echo "---------------------------------------------------------"
 
 
 test:
 	@@${OPEN} ${BASEURI}/test/index.html
+
+size:
+	@@echo "Size..."
+	@@sh ${BASEURI}/tools/size.sh
+	@@echo "---------------------------------------------------------"

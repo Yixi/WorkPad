@@ -4037,6 +4037,16 @@ workpad.data.check = function(jsonData){
 
 ;workpad.dom.style = function(styles){
 
+    var stylePropertyMapping = {
+        "float": ("styleFloat" in document.createElement('div').style) ? "styleFloat" : "cssFloat"
+        },
+        REG_EXP_CAMELIZE = /\-[a-z]/g;
+    function camelize(str){
+        return str.replace(REG_EXP_CAMELIZE,function(match){
+           return match.charAt(1).toUpperCase();
+        });
+    }
+
     return {
 
         /**
@@ -4046,7 +4056,20 @@ workpad.data.check = function(jsonData){
          * @param element
          */
         setto:function(element){
-
+            var style = element.style;
+            if(typeof(styles) === "string"){
+                style.cssText += ";" + styles;
+                return;
+            }
+            styles = workpad.util.object(styles).safeJSON();
+            for (var i in styles){
+                if(i === "float"){
+                    style.cssFloat = styles[i];
+                    style.styleFloat = styles[i];
+                } else {
+                    style[i] = styles[i];
+                }
+            }
         },
 
         /**
@@ -4057,7 +4080,43 @@ workpad.data.check = function(jsonData){
          */
 
         getfrom:function(element){
+            if(element.nodeType !== workpad.ELEMENT_NODE){
+                return;
+            }
+            var doc = element.ownerDocument,
+                property = styles,
+                camelizedProperty = stylePropertyMapping[styles] || camelize(styles),
+                style = element.style,
+                currentStyle = element.currentStyle,
+                styleValue = style[camelizedProperty];
+            if(styleValue){
+                return styleValue;
+            }
 
+            if(currentStyle){
+                try{
+                    return currentStyle[camelizedProperty];
+                } catch (e){
+
+                }
+            }
+
+            var win = doc.defaultView || doc.parentWindow,
+                needsOverflowReset = (property === "height" || property === "width") && element.nodeName === "TEXTAREA",
+                originalOverflow,
+                returnValue;
+
+            if(win.getComputedStyle){
+                if(needsOverflowReset){
+                    originalOverflow = style.overflow;
+                    style.overflow = "hidden";
+                }
+                returnValue = win.getComputedStyle(element,null).getPropertyValue(property);
+                if(needsOverflowReset){
+                    style.overflow = originalOverflow || "";
+                }
+                return returnValue;
+            }
         }
     }
 }
