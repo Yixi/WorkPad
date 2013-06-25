@@ -30,8 +30,8 @@
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){
-            util.debug(event).debug();
-
+//            util.debug(event).debug();
+            util.debug(dom.offset(event.target).get()).debug();
         });
 
     }

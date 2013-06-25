@@ -40,6 +40,21 @@
              */
             isArray:function(){
                 return Object.prototype.toString.call(obj) === "[object Array]";
+            },
+
+            /**
+             * get a safe json data.
+             * @example
+             *      workpad.util.object({a:function(){},b:2}).safeJSON() //=> { b:2 }
+             * @returns {*|{}}
+             */
+            safeJSON:function(){
+                try{
+                    var newJSON = JSON.parse(JSON.stringify(obj));
+                }catch(e){
+                    var newJSON = {};
+                }
+                return newJSON;
             }
         }
     };

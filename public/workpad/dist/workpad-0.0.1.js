@@ -3758,6 +3758,21 @@ workpad.browser = (function(){
              */
             isArray:function(){
                 return Object.prototype.toString.call(obj) === "[object Array]";
+            },
+
+            /**
+             * get a safe json data.
+             * @example
+             *      workpad.util.object({a:function(){},b:2}).safeJSON() //=> { b:2 }
+             * @returns {*|{}}
+             */
+            safeJSON:function(){
+                try{
+                    var newJSON = JSON.parse(JSON.stringify(obj));
+                }catch(e){
+                    var newJSON = {};
+                }
+                return newJSON;
             }
         }
     };
@@ -3933,7 +3948,70 @@ workpad.data.check = function(jsonData){
         return (elementClassName.length > 0 && (elementClassName == className || new RegExp("(^|\\s)" + className + "(\\s|$)").test(elementClassName)));
     };
 })(workpad);
-(function(){
+/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Get/set the element offset  from jquery.
+ *
+ */
+
+;(function(workpad){
+
+    workpad.dom.offset = function(element){
+
+        function isWindow(obj){
+            return obj != null && obj === obj.window;
+        }
+
+        function getWindow( elem ) {
+            return isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
+        }
+
+        return {
+
+            /**
+             * get the element offset of document.
+             *
+             * @example
+             *      workpad.dom.offset(document.getElementById("content")).get()
+             *
+             * @returns {{top: number, left: number}}
+             */
+            get:function(){
+                var doc = element && element.ownerDocument,
+                    box = { top: 0, left: 0},
+                    docElem, win;
+
+                if (! doc){
+                    return;
+                }
+
+                docElem = doc.documentElement;
+
+                if(typeof element.getBoundingClientRect !== (typeof undefined)){
+                    box = element.getBoundingClientRect();
+                }
+                win = getWindow(doc);
+
+                return {
+                    top: box.top + win.pageYOffset - docElem.clientTop,
+                    left: box.left + win.pageXOffset - docElem.clientLeft,
+                    width: box.width,
+                    height: box.height
+                };
+            },
+
+            set:function(){
+
+
+            }
+        }
+    }
+
+})(workpad);(function(){
     var mapping = {
         "className":"class"
     };
@@ -3947,6 +4025,42 @@ workpad.data.check = function(jsonData){
         };
     };
 })();/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * get / set styles
+ *
+ */
+
+;workpad.dom.style = function(styles){
+
+    return {
+
+        /**
+         * set style to element, the @param styles is {JSON}
+         * @example
+         *      workpad.dom.style({width:"500"}).setto(document.body);
+         * @param element
+         */
+        setto:function(element){
+
+        },
+
+        /**
+         * get style form element, the @param styles is {String}
+         * @example
+         *      workpad.dom.style("position").getfrom(document.body); //=> "absolute"
+         * @param element
+         */
+
+        getfrom:function(element){
+
+        }
+    }
+}
+/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -4029,6 +4143,110 @@ workpad.dom.observe = function(element,eventNames,handler){
     }
 };
 /**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Event Delegation
+ *
+ * @example
+ *      workpad.dom.delegate(document.body,".content", ["click","mousemmove"],function(){
+ *         //fn
+ *      });
+ *
+ */
+
+;(function(workpad){
+
+    workpad.dom.delegate = function(container, selector, eventName, handler){
+        return workpad.dom.observe(container,eventName,function(event){
+            var target = event.target,
+                match = workpad.util.array(container.querySelectorAll(selector));
+
+            while(target && target !== container){
+                if (match.contains(target)){
+                    handler.call(target,event);
+                    break;
+                }
+                target = target.parentNode;
+            }
+        });
+    };
+})(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Walks the dom tree from the given node up until it finds a match
+ *
+ *
+ * @example
+ *      var listElement = workpad.dom.getParentElement(document.querySelector('li'), {nodeName: ["UL","OL"] });
+ *
+ *      var colorElement = workpad.dom.getParentElment(myNode, {nodeName:"SPAN", classRegExp: /workpad-color-[a-z]/g });
+ *
+ */
+
+;workpad.dom.getParentElement = (function(){
+
+    function _isSameNodeName(nodeName, desiredNodeNames){
+        if(!desiredNodeNames || !desiredNodeNames.length){
+            return true;
+        }
+
+        if(typeof(desiredNodeNames) === "string"){
+            return nodeName === desiredNodeNames;
+        }else{
+            return workpad.util.array(desiredNodeNames).contains(nodeName);
+        }
+    }
+
+    function _isElement(node){
+        return node.nodeType === workpad.ELEMENT_NODE;
+    }
+
+    function _hasClassName(element,className, classRegExp){
+        var classNames = (element.className || "").match(classRegExp) || [];
+        if(!className){
+            return !!classNames.length;
+        }
+        return classNames[classNames.length-1] === className;
+    }
+
+    function _getParentElementWithNodeName(node, nodeName, levels){
+        while(levels-- && node && node.nodeName !== "BODY"){
+            if(_isSameNodeName(node.nodeName, nodeName)){
+                return node;
+            }
+            node = node.parentNode;
+        }
+        return null;
+    }
+
+    function _getParentElementWithNodeNameAndClassName(node, nodeName, className, classRegExp, levels){
+        while(levels-- && node && node.nodeName !== "BODY"){
+            if(_isElement(node) &&
+               _isSameNodeName(node.nodeName, nodeName) &&
+               _hasClassName(node,className,classRegExp)){
+                return node;
+            }
+            node = node.parentNode;
+        }
+        return null;
+    }
+
+    return function(node, matchingSet, levels){
+        levels = levels || 70;
+        if(matchingSet.className || matchingSet.classRegExp){
+            return _getParentElementWithNodeNameAndClassName(node, matchingSet.nodeName, matchingSet.className, matchingSet.classRegExp ,levels);
+        }else{
+            return _getParentElementWithNodeName(node, matchingSet.nodeName, levels);
+        }
+    }
+
+})();/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -4269,8 +4487,10 @@ workpad.views.View = Base.extend({
 
         });
 
-        dom.observe(element,"mousemove",function(event){
-            util.debug(event.target).info();
+        // ----- set the editArea location -----
+        dom.delegate(element,".content","mouseover",function(event){
+//            util.debug(event).debug();
+            util.debug(dom.offset(event.target).get()).debug();
         });
 
     }
@@ -4343,7 +4563,7 @@ workpad.views.View = Base.extend({
 
     //one bullet points
     var BULLET_POINT =
-        '<div class="" data-id="#{id}">' +
+        '<div class="item" data-id="#{id}">' +
             '<div class="maindata">' +
                 '<div class="content">#{content}</div>' +
                 '<div class="description">#{description}</div>' +
