@@ -3530,8 +3530,9 @@ workpad.browser = (function(){
  */
 
 ;(function(workpad){
+    var DEBUGLEVEL = "debug";
     var config = {
-        logLevel:"debug",
+        logLevel:DEBUGLEVEL,
         logLevels:["debug","info","warn","error"]
     };
 

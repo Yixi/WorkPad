@@ -9,6 +9,7 @@ OUTPUT_URI = ${BASEURI}/dist
 
 WORKPAD_OUTPUT = "${OUTPUT_URI}/workpad-${VERSION}.js"
 WORKPAD_MIN_OUTPUT = "${OUTPUT_URI}/workpad-min-${VERSION}.js"
+WORKPAD_MIN_SOURCEMAP_OUTPUT = "${OUTPUT_URI}/workpad.js.map"
 
 WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/lib/base/base.js \
@@ -58,6 +59,20 @@ bundle:
 minify:
 	@@echo "Minifying..."
 	@@echo "---------------"
+	@@java -jar ${BASEURI}/tools/compiler.jar \
+	       --compilation_level SIMPLE_OPTIMIZATIONS \
+	       --js ${WORKPAD_OUTPUT} \
+	       --language_in=ECMASCRIPT5_STRICT \
+	       --create_source_map ${WORKPAD_MIN_SOURCEMAP_OUTPUT} \
+	       --source_map_format=V3 \
+	       --js_output_file ${OUTPUT_URI}/1.js
+	@@java -jar ${BASEURI}/tools/compiler.jar \
+	       --js ${OUTPUT_URI}/1.js \
+	       --js_output_file ${OUTPUT_URI}/2.js
+	@@rm ${WORKPAD_MIN_OUTPUT}
+	@@cat  ${BASEURI}/lincence ${OUTPUT_URI}/2.js ${BASEURI}/sourcemap >> ${WORKPAD_MIN_OUTPUT}
+	@@rm ${OUTPUT_URI}/2.js ${OUTPUT_URI}/1.js
+	@@echo "Minifying workpad-${VERSION}.js complete"
 
 
 test:
