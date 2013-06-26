@@ -34,7 +34,7 @@
             var keyCode = event.keyCode;
             if(keyCode === KEYS.ENTER_KEY){
                 event.preventDefault();
-                editor.fire("addItem:dispatcher");
+                that.commands.exec("addItem");
             }else if(keyCode === KEYS.TAB_KEY){
                 event.preventDefault();
                 if(event.shiftKey){

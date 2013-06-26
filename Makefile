@@ -33,6 +33,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/get_parent_element.js \
   ${BASEURI}/src/dom/edit_area.js \
   ${BASEURI}/src/commands.js \
+  ${BASEURI}/src/commands/add_item.js \
   ${BASEURI}/src/views/view.js \
   ${BASEURI}/src/views/composer.js \
   ${BASEURI}/src/views/composer.observe.js \

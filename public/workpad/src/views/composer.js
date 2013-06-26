@@ -68,6 +68,7 @@
 
             //make sure commands dispatcher is ready
             this.commands = new workpad.Commands(this.parent);
+            this.parent.commands = this.commands;
 
             this.observe();
             this.dispatcher();
