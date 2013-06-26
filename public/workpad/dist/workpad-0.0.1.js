@@ -4078,6 +4078,28 @@ workpad.data.check = function(jsonData){
         },
 
         /**
+         * get style form element, the @param styles is {String}, but this function return number
+         * @example
+         *      workpad.dom.style("position").getNumberfrom(document.body); //=> 1000
+         * @param element
+         */
+        getNumberFrom:function(element){
+            var value = this.getfrom(element);
+            if(value){
+                value = value.replace("px","");
+            }else{
+                value = 0
+            }
+            var number = parseFloat(value);
+            if(!isNaN(number)){
+                return number;
+            }else{
+                workpad.util.debug("can't return a number about " + styles + " from ", element).error();
+                return 0;
+            }
+        },
+
+        /**
          * copy style to  element and other element , the @param styles is {Ararry}
          * @example
          *      workpad.dom.style(["overflow-y","width"]).copyfrom(textarea).to(div).andTo(anotherDiv);
@@ -4114,7 +4136,7 @@ workpad.data.check = function(jsonData){
  * Author: liuyixi
  * Copyright (c) 2013 Yixi
  *
- * Get/set the element offset  from jquery.
+ * Get/set the element offset  .
  *
  */
 
@@ -4130,6 +4152,12 @@ workpad.data.check = function(jsonData){
             return isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
         }
 
+        function nodeName( elem, name ) {
+            return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+        }
+
+        var dom = workpad.dom,
+            util = workpad.util;
         return {
 
             /**
@@ -4164,9 +4192,101 @@ workpad.data.check = function(jsonData){
                 };
             },
 
-            set:function(){
+            /**
+             * set the element offset by the document offset;
+             * @example
+             *      workpad.dom.offset(this.editArea).set({top:5,left:10})
+             * @param options
+             */
+            set:function(options){
+                var curPositon, curLeft, curCSSTop, curTop, curOffset, curCssLeft, calculatePosition,
+                    position = dom.style("position").getfrom(element),
+                    props = {};
+
+                if(position === "static"){
+                    element.style.position = "relative";
+                }
+
+                curOffset = dom.offset(element).get();
+                curCSSTop = dom.style("top").getfrom(element);
+                curCssLeft = dom.style("left").getfrom(element);
+                calculatePosition  = (position === "absolute" || position === "fixed" ) && (curCSSTop + curCssLeft).indexOf("auto") > -1;
+
+                if(calculatePosition){
+                    curPositon = dom.offset(element).position();
+                    curTop = curPositon.top;
+                    curLeft = curPositon.left;
+                }else{
+                    curTop = parseFloat(curCSSTop) || 0;
+                    curLeft = parseFloat(curCssLeft) || 0;
+                }
 
 
+                if(options.top != null){
+                    props.top = (options.top - curOffset.top) + curTop +'px';
+                }
+                if(options.left != null){
+                    props.left = (options.left - curOffset.left )+ curLeft + 'px';
+                }
+                if(options.width != null){
+                    props.width = options.width + 'px';
+                }
+                if(options.height !=null){
+                    props.height = options.height + 'px';
+                }
+
+                dom.style(props).setto(element);
+            },
+
+            /**
+             * return the real offsetParent
+             * @example
+             *      workpad.dom.offset(element).offsetParent();
+             *
+             * @returns {Function|HTMLElement|Function|Element|Element}
+             */
+            offsetParent:function(){
+                var ele = element,
+                    offsetParent = ele.offsetParent || document.documentElement;
+                while (offsetParent && (!nodeName(offsetParent,"html")) && dom.style("position").getfrom(offsetParent) === "static"){
+                    offsetParent = offsetParent.offsetParent;
+                }
+                return offsetParent || document.documentElement;
+            },
+
+            /**
+             * calculate position
+             *
+             * @returns {{top: number, left: number}}
+             */
+            position:function(){
+                if(!element){
+                    return ;
+                }
+
+                var offsetParent, offset,
+                    elem = element,
+                    parentOffset = { top:0 ,left:0};
+
+                //Fix element are offset from window
+
+                if(dom.style("position").getfrom(elem) === "fixed"){
+                    offset = elem.getBoundingClientRect();
+                }else{
+                    offsetParent = dom.offset(elem).offsetParent();
+                    offset = dom.offset(elem).get();
+                    if(!nodeName(offsetParent,"html")){
+                        parentOffset = dom.offset(offsetParent).get();
+                    }
+
+                    parentOffset.top += dom.style("borderTopWidth").getNumberFrom(offsetParent);
+                    parentOffset.left += dom.style("borderLeftWidth").getNumberFrom(offsetParent);
+                }
+
+                return {
+                    top: offset.top - parentOffset.top - dom.style('marginTop').getNumberFrom(offsetParent),
+                    left: offset.left - parentOffset.left - dom.style('marginLeft').getNumberFrom(offsetParent)
+                };
             }
         }
     }
@@ -4319,6 +4439,7 @@ workpad.dom.observe = function(element,eventNames,handler){
     }
 
     function _hasClassName(element,className, classRegExp){
+        classRegExp = classRegExp || className;
         var classNames = (element.className || "").match(classRegExp) || [];
         if(!className){
             return !!classNames.length;
@@ -4584,24 +4705,28 @@ workpad.views.View = Base.extend({
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
             element = this.parent.element,
-            eidtAreaElement = this.editArea.getEditArea();
+            editAreaElement = this.editArea.getEditArea();
             pasteEvents = ["drop","paste"];
 
 
-        util.debug(element,eidtAreaElement).debug();
+        util.debug(element,editAreaElement).debug();
 
         //Main Event handler.
 
-        dom.observe(eidtAreaElement,"keydown",function(event){
+        dom.observe(editAreaElement,"keydown",function(event){
 
         });
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){
-//            util.debug(event).debug();
-            util.debug(dom.offset(event.target).get()).debug();
-
+            var itemEle = dom.getParentElement(event.target,{nodeName:"DIV",className:"item"}),
+                contentText = event.target.textContent;
+            dom.offset(editAreaElement).set(dom.offset(event.target).get());
+            that.editArea.setContent(contentText);
         });
+        dom.delegate(element,".content","mouseout",function(event){
+
+        })
 
     }
 
@@ -4633,6 +4758,16 @@ workpad.views.View = Base.extend({
             var Dom = this.buildDomByDatas(datas);
             this._setContent(Dom);
         },
+
+        getElementByitemId:function(itemid){
+            return this.element.querySelector(".item[data-id='"+itemid+"']");
+        },
+
+        getContentById: function(itemid){
+            var ele = this.getElementByitemId(itemid);
+            debug(ele).debug();
+        },
+
         /**
          * private funciton to set the workpad content
          * @param content {HTMLstring}

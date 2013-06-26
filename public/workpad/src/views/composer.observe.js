@@ -16,23 +16,30 @@
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
             element = this.parent.element,
-            editAreaElement = this.editArea.getEditArea();
+            editAreaElementA = this.editAreaA.getEditArea(),
+            editAreaElementB = this.editAreaB.getEditArea(),
             pasteEvents = ["drop","paste"];
 
 
-        util.debug(element,editAreaElement).debug();
+        util.debug(element,editAreaElementA,editAreaElementB).debug();
 
         //Main Event handler.
 
-        dom.observe(editAreaElement,"keydown",function(event){
+        dom.observe(editAreaElementA,"keydown",function(event){
+
+        });
+        dom.observe(editAreaElementB,"keydown",function(event){
 
         });
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){
-//            util.debug(event).debug();
-            util.debug(dom.offset(event.target).get()).debug();
-            dom.offset(editAreaElement).set(dom.offset(event.target).get());
+            var itemEle = dom.getParentElement(event.target,{nodeName:"DIV",className:"item"}),
+                contentText = event.target.textContent,
+                itemid = dom.getAttribute("data-id").from(itemEle);
+            dom.offset(that.getUseHoverEditAreaElement()).set(dom.offset(event.target).get());
+            that.getUseHoverEditArea().setContent(contentText);
+            dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(that.getUseHoverEditAreaElement());
         });
 
     }

@@ -26,6 +26,16 @@
             var Dom = this.buildDomByDatas(datas);
             this._setContent(Dom);
         },
+
+        getElementByitemId:function(itemid){
+            return this.element.querySelector(".item[data-id='"+itemid+"']");
+        },
+
+        getContentById: function(itemid){
+            var ele = this.getElementByitemId(itemid);
+            debug(ele).debug();
+        },
+
         /**
          * private funciton to set the workpad content
          * @param content {HTMLstring}

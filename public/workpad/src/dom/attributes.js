@@ -11,4 +11,12 @@
             }
         };
     };
+
+    workpad.dom.getAttribute = function(attribute){
+        return {
+            from: function(element){
+                return element.getAttribute(attribute);
+            }
+        };
+    };
 })();

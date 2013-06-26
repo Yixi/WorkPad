@@ -33,6 +33,7 @@
     }
 
     function _hasClassName(element,className, classRegExp){
+        classRegExp = classRegExp || className;
         var classNames = (element.className || "").match(classRegExp) || [];
         if(!className){
             return !!classNames.length;

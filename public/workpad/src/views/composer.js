@@ -22,20 +22,44 @@
             this._initEditArea();
         },
 
-        _initEditArea:function(){
-            var that = this;
+        /*get editArea for set hover */
 
-            this.editArea = new dom.editArea(function(){
-               that._create();
-            });
-
-            this.editAreaElement = this.editArea.getEditArea();
-            var wpElement = this.wp.element;
-            dom.insert(this.editAreaElement).after(wpElement);
-
-
+        getUseHoverEditAreaElement:function(){
+            return this.getUseHoverEditArea().getEditArea();
         },
 
+        getUseHoverEditArea:function(){
+            if(this.editAreaA.lastEdit){
+                return this.editAreaB;
+            }else{
+                return this.editAreaA;
+            }
+        },
+
+        /* private function */
+
+        _initEditArea:function(){
+            var that = this;
+            this.editAreaA = new dom.editArea(function(){
+               that.editAreaB = new dom.editArea(function(){
+                   that._insertEditAreas();
+               });
+            });
+        },
+
+        _insertEditAreas:function(){
+            this.editAreaElementA = this.editAreaA.getEditArea();
+            this.editAreaElementB = this.editAreaB.getEditArea();
+            var wpElement = this.wp.element;
+            dom.insert(this.editAreaElementA).after(wpElement);
+            dom.insert(this.editAreaElementB).after(wpElement);
+
+            // default first use the editAreaA for hover.
+            this.editAreaA.lastEdit = false;
+            this.editAreaB.lastEdit = true;
+
+            this._create();
+        },
 
         _create:function(){
             this.doc = document;
