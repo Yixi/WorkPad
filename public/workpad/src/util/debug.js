@@ -44,10 +44,10 @@
         }
 
         return {
-            error:log(args,'[WorkPad error!!!]: ','error'),
-            debug:log(args,'[WorkPad debug]: ','debug'),
-            info:log(args,'[WorkPad info]: ','info'),
-            warn:log(args,'[Workpad warn!]: ','warn')
+            error:log(args,'[WorkPad Error!!!]: ','error'),
+            debug:log(args,'[WorkPad Debug]: ','debug'),
+            info:log(args,'[WorkPad Info]: ','info'),
+            warn:log(args,'[Workpad Warn!]: ','warn')
         }
     };
 })(workpad);

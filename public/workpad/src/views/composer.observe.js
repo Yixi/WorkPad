@@ -11,13 +11,18 @@
 (function(workpad){
     var dom = workpad.dom,
         util = workpad.util,
-        browser = workpad.browser;
+        browser = workpad.browser,
+        KEYS = workpad.KEYS;
 
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
+            editor = this.parent,
             element = this.parent.element,
             editAreaElementA = this.editAreaA.getEditArea(),
+            editAreaElementARealNode = this.editAreaA.getRealNode(),
             editAreaElementB = this.editAreaB.getEditArea(),
+            eidtAreaElementBRealNode = this.editAreaB.getRealNode();
+
             pasteEvents = ["drop","paste"];
 
 
@@ -25,12 +30,23 @@
 
         //Main Event handler.
 
-        dom.observe(editAreaElementA,"keydown",function(event){
+        var editAreasEvent = function(event){
+            var keyCode = event.keyCode;
+            if(keyCode === KEYS.ENTER_KEY){
+                event.preventDefault();
+                editor.fire("addItem:dispatcher");
+            }else if(keyCode === KEYS.TAB_KEY){
+                event.preventDefault();
+                if(event.shiftKey){
+                    editor.fire("outdentItem:dispatcher");
+                }else{
+                    editor.fire("indentItem:dispatcher");
+                }
+            }
+        }
 
-        });
-        dom.observe(editAreaElementB,"keydown",function(event){
-
-        });
+        dom.observe(editAreaElementARealNode,"keydown",editAreasEvent);
+        dom.observe(eidtAreaElementBRealNode,"keydown",editAreasEvent);
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){

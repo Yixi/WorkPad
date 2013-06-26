@@ -70,6 +70,7 @@
             this.commands = new workpad.Commands(this.parent);
 
             this.observe();
+            this.dispatcher();
         }
 
     });
