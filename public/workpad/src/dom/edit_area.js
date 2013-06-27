@@ -24,17 +24,17 @@
      */
 
     var doc = document;
-
     /**
      * @scope workpad.dom.editArea.prototype.
      */
-    workpad.dom.editArea = Base.extend({
+    workpad.dom.editArea = workpad.dom.editAreaRange.extend({
 
         constructor:function(readyCallback,config){
             var that = this;
             this.callback = readyCallback || workpad.EMPTY_FUNCTION;
             this.config = workpad.util.object({}).merge(config).get();
             this.editArea =  this._createTextArea();
+            this.base(this.getRealNode());
             setTimeout(function() { that.callback(that); }, 0);
         },
 

@@ -13,7 +13,6 @@
     var util = workpad.util;
 
     workpad.views.Composer.commandCenter = {};
-    window.rangy.init();
     workpad.views.Composer.prototype.commandExec = function(command,value){
         var obj = workpad.views.Composer.commandCenter[command],
             args = workpad.util.array(arguments).get(),

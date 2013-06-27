@@ -13,7 +13,6 @@ WORKPAD_MIN_SOURCEMAP_OUTPUT = "${OUTPUT_URI}/workpad.js.map"
 
 WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/lib/base/base.js \
-  ${BASEURI}/lib/rangy/rangy-core.js \
   ${BASEURI}/src/browser.js \
   ${BASEURI}/src/util/debug.js \
   ${BASEURI}/src/util/array.js \
@@ -31,6 +30,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/observe.js \
   ${BASEURI}/src/dom/delegate.js \
   ${BASEURI}/src/dom/get_parent_element.js \
+  ${BASEURI}/src/dom/edit_area_range.js \
   ${BASEURI}/src/dom/edit_area.js \
   ${BASEURI}/src/commands.js \
   ${BASEURI}/src/commands/add_item.js \
