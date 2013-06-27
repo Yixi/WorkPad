@@ -3561,10 +3561,10 @@ workpad.browser = (function(){
         }
 
         return {
-            error:log(args,'[WorkPad error!!!]: ','error'),
-            debug:log(args,'[WorkPad debug]: ','debug'),
-            info:log(args,'[WorkPad info]: ','info'),
-            warn:log(args,'[Workpad warn!]: ','warn')
+            error:log(args,'[WorkPad Error!!!]: ','error'),
+            debug:log(args,'[WorkPad Debug]: ','debug'),
+            info:log(args,'[WorkPad Info]: ','info'),
+            warn:log(args,'[Workpad Warn!]: ','warn')
         }
     };
 })(workpad);(function(){
@@ -3959,6 +3959,14 @@ workpad.data.check = function(jsonData){
                 for (var i in attributes){
                     element.setAttribute(mapping[i] || i, attributes[i]);
                 }
+            }
+        };
+    };
+
+    workpad.dom.getAttribute = function(attribute){
+        return {
+            from: function(element){
+                return element.getAttribute(attribute);
             }
         };
     };
@@ -4529,6 +4537,11 @@ workpad.dom.observe = function(element,eventNames,handler){
             return this.editArea;
         },
 
+        /* this function to return the real editArea like <textarea> for event handler. */
+        getRealNode:function(){
+            return this.editArea.getElementsByTagName("textarea")[0];
+        },
+
         setContent:function(value){
             this.editArea.getElementsByTagName("textarea")[0].value = value;
             return this;
@@ -4587,15 +4600,66 @@ workpad.Commands = Base.extend({
     },
 
     /**
-     *
+     * check whether the browser supports the given command
      * @param {String}
      * @returns {*}
      */
     support:function(command){
         return workpad.browser.supportsCommand(this.doc,command);
+    },
+
+    exec: function(command,value){
+        var obj = workpad.commands[command],
+            args = workpad.util.array(arguments).get(),
+            method = obj && obj.exec,
+            result = null;
+
+        if(method){
+            args.unshift(this.editor);
+            result = method.apply(obj,args);
+        }else{
+            try{
+                result = this.doc.execCommand(command, false, value);
+            }catch(e){}
+        }
+        return result;
     }
 });
 /**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * add item command.
+ *
+ */
+
+workpad.commands.addItem = {
+    exec:function(editor, command){
+        editor.fire("addItem:dispatcher");
+    }
+};/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * indent /outdent item
+ *
+ */
+
+workpad.commands.indentItem = {
+    exec:function(editor, command){
+        editor.fire("indentItem:dispatcher");
+    }
+};
+
+workpad.commands.outdentItem ={
+    exec:function(editor, command){
+        editor.fire("outdentItem:dispatcher");
+    }
+}/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -4659,20 +4723,44 @@ workpad.views.View = Base.extend({
             this._initEditArea();
         },
 
-        _initEditArea:function(){
-            var that = this;
+        /*get editArea for set hover */
 
-            this.editArea = new dom.editArea(function(){
-               that._create();
-            });
-
-            this.editAreaElement = this.editArea.getEditArea();
-            var wpElement = this.wp.element;
-            dom.insert(this.editAreaElement).after(wpElement);
-
-
+        getUseHoverEditAreaElement:function(){
+            return this.getUseHoverEditArea().getEditArea();
         },
 
+        getUseHoverEditArea:function(){
+            if(this.editAreaA.lastEdit){
+                return this.editAreaB;
+            }else{
+                return this.editAreaA;
+            }
+        },
+
+        /* private function */
+
+        _initEditArea:function(){
+            var that = this;
+            this.editAreaA = new dom.editArea(function(){
+               that.editAreaB = new dom.editArea(function(){
+                   that._insertEditAreas();
+               });
+            });
+        },
+
+        _insertEditAreas:function(){
+            this.editAreaElementA = this.editAreaA.getEditArea();
+            this.editAreaElementB = this.editAreaB.getEditArea();
+            var wpElement = this.wp.element;
+            dom.insert(this.editAreaElementA).after(wpElement);
+            dom.insert(this.editAreaElementB).after(wpElement);
+
+            // default first use the editAreaA for hover.
+            this.editAreaA.lastEdit = false;
+            this.editAreaB.lastEdit = true;
+
+            this._create();
+        },
 
         _create:function(){
             this.doc = document;
@@ -4681,8 +4769,10 @@ workpad.views.View = Base.extend({
 
             //make sure commands dispatcher is ready
             this.commands = new workpad.Commands(this.parent);
+            this.parent.commands = this.commands;
 
             this.observe();
+            this.dispatcher();
         }
 
     });
@@ -4700,37 +4790,132 @@ workpad.views.View = Base.extend({
 (function(workpad){
     var dom = workpad.dom,
         util = workpad.util,
-        browser = workpad.browser;
+        browser = workpad.browser,
+        KEYS = workpad.KEYS;
 
     workpad.views.Composer.prototype.observe = function(){
         var that = this,
+            editor = this.parent,
             element = this.parent.element,
-            editAreaElement = this.editArea.getEditArea();
+            editAreaElementA = this.editAreaA.getEditArea(),
+            editAreaElementARealNode = this.editAreaA.getRealNode(),
+            editAreaElementB = this.editAreaB.getEditArea(),
+            eidtAreaElementBRealNode = this.editAreaB.getRealNode();
+
             pasteEvents = ["drop","paste"];
 
 
-        util.debug(element,editAreaElement).debug();
+        util.debug(element,editAreaElementA,editAreaElementB).debug();
 
         //Main Event handler.
 
-        dom.observe(editAreaElement,"keydown",function(event){
+        var editAreasEvent = function(event){
+            var keyCode = event.keyCode;
+            if(keyCode === KEYS.ENTER_KEY){
+                event.preventDefault();
+                that.commands.exec("addItem");
+            }else if(keyCode === KEYS.TAB_KEY){
+                event.preventDefault();
+                if(event.shiftKey){
+                    that.commands.exec("outdentItem");
+                }else{
+                    that.commands.exec("indentItem");
+                }
+            }
+        }
 
-        });
+        dom.observe(editAreaElementARealNode,"keydown",editAreasEvent);
+        dom.observe(eidtAreaElementBRealNode,"keydown",editAreasEvent);
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){
             var itemEle = dom.getParentElement(event.target,{nodeName:"DIV",className:"item"}),
-                contentText = event.target.textContent;
-            dom.offset(editAreaElement).set(dom.offset(event.target).get());
-            that.editArea.setContent(contentText);
+                contentText = event.target.textContent,
+                itemid = dom.getAttribute("data-id").from(itemEle);
+            dom.offset(that.getUseHoverEditAreaElement()).set(dom.offset(event.target).get());
+            that.getUseHoverEditArea().setContent(contentText);
+            dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(that.getUseHoverEditAreaElement());
         });
-        dom.delegate(element,".content","mouseout",function(event){
-
-        })
 
     }
 
 })(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * the editor dispatch center.
+ *
+ */
+
+;(function(workpad){
+    var dom = workpad.dom,
+        util = workpad.util;
+
+    workpad.views.Composer.prototype.dispatcher = function(){
+        var editor = this.parent,
+            that = this;
+        editor.on("addItem:dispatcher",function(){
+            util.debug("Editor on Event:", "indentItem:dispatcher").info();
+            that.commandExec("addItem");
+        });
+
+        editor.on("indentItem:dispatcher",function(){
+           util.debug("Editor on Event:", "indentItem:dispatcher").info();
+        });
+
+        editor.on("outdentItem:dispatcher",function(){
+            util.debug("Editor on Event:", "outdentItem:dispatcher").info();
+        });
+    };
+
+})(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ *  private commands for the workapd content handler.
+ *
+ */
+
+
+;(function(workpad){
+    var util = workpad.util;
+
+    workpad.views.Composer.commandCenter = {};
+    window.rangy.init();
+    workpad.views.Composer.prototype.commandExec = function(command,value){
+        var obj = workpad.views.Composer.commandCenter[command],
+            args = workpad.util.array(arguments).get(),
+            method = obj && obj.exec,
+            result = null;
+
+        if(method){
+            //parent is editor
+            args.unshift(this.parent);
+            result = method.apply(obj,args);
+            return result;
+        }
+        return false;
+    }
+})(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * this is use for add workpad bullet point.
+ *
+ */
+
+workpad.views.Composer.commandCenter.addItem = {
+    exec:function(editor,command){
+        workpad.util.debug("Get Event:","additem:dispatcher").info();
+    }
+}
+/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi

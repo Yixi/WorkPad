@@ -38,9 +38,9 @@
             }else if(keyCode === KEYS.TAB_KEY){
                 event.preventDefault();
                 if(event.shiftKey){
-                    editor.fire("outdentItem:dispatcher");
+                    that.commands.exec("outdentItem");
                 }else{
-                    editor.fire("indentItem:dispatcher");
+                    that.commands.exec("indentItem");
                 }
             }
         }

@@ -34,10 +34,13 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/edit_area.js \
   ${BASEURI}/src/commands.js \
   ${BASEURI}/src/commands/add_item.js \
+  ${BASEURI}/src/commands/indent.js \
   ${BASEURI}/src/views/view.js \
   ${BASEURI}/src/views/composer.js \
   ${BASEURI}/src/views/composer.observe.js \
   ${BASEURI}/src/views/composer.dispatcher.js \
+  ${BASEURI}/src/views/composer.commands.js \
+  ${BASEURI}/src/views/commands/add_item.js \
   ${BASEURI}/src/views/wp.js \
   ${BASEURI}/src/views/wp.dom.js \
   ${BASEURI}/src/init.js
