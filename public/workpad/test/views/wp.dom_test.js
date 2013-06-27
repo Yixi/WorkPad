@@ -4,55 +4,55 @@ module("workpad.views.Wp.prototype",{
             id:"001",
             description:"note1",
             content:"title1",
-            collapse:true,
+            expand:true,
             children:[]
         }],
         b:[{
             id:"001",
             description:"note1",
             content:"title1",
-            collapse:true,
+            expand:true,
             children:[]
         },{
             id:"002",
             description:"note2",
             content:"title2",
-            collapse:true,
+            expand:true,
             children:[]
         }],
         c:[{
             id:"001",
             description:"note1",
             content:"title1",
-            collapse:true,
+            expand:true,
             children:[]
         },{
             id:"002",
             description:"note2",
             content:"title2",
-            collapse:true,
+            expand:true,
             children:[{
                 id:"003",
                 description:"note3",
                 content:"title3",
-                collapse:true,
+                expand:true,
                 children:[]
             },{
                 id:"004",
                 description:"note4",
                 content:"title4",
-                collapse:true,
+                expand:true,
                 children:[]
             },{
                 id:"005",
                 description:"note5",
                 content:"title5",
-                collapse:true,
+                expand:true,
                 children:[{
                     id:"006",
                     description:"note6",
                     content:"title6",
-                    collapse:true,
+                    expand:true,
                     children:[]
                 }]
             }]
@@ -60,7 +60,7 @@ module("workpad.views.Wp.prototype",{
             id:"007",
             description:"note7",
             content:"title7",
-            collapse:true,
+            expand:true,
             children:[]
         }]
     },

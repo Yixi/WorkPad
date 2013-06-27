@@ -10,7 +10,8 @@
 
 ;(function(workpad){
     var dom = workpad.dom,
-        util = workpad.util;
+        util = workpad.util,
+        WpProto = workpad.views.Wp.prototype;
 
 
     /**
@@ -28,7 +29,7 @@
             '<div class="children">#{children}</div>' +
         '</div>';
 
-    workpad.views.Wp.prototype.buildDomByDatas = function(datas){
+    WpProto.buildDomByDatas = function(datas){
         var that = this;
         return function build(datas){
             var
@@ -38,7 +39,7 @@
                 len = datas.length;
             for(; i<len; i++){
                 var data = datas[i];
-                if(data.children.length > 0 && data.collapse){
+                if(data.children.length > 0 && data.expand){
                     childrens = build(data.children);
                 }
                 html += that.buildHTMLBySingleData({
@@ -54,7 +55,7 @@
     };
 
 
-    workpad.views.Wp.prototype.buildHTMLBySingleData = function(json){
+    WpProto.buildHTMLBySingleData = function(json){
         return util.string(BULLET_POINT).interpolate(json);
     };
 

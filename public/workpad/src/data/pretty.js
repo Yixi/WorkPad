@@ -34,12 +34,12 @@
                         }
                     }
                     if(newArr.length<1){
-                        newArr = workpad.data.predata.EMPTY_DATA;
+                        newArr = workpad.data.predata.GET_EMPTY_DATA();
                     }
                     return newArr;
 
                 }else{
-                    return workpad.data.predata.EMPTY_DATA;
+                    return workpad.data.predata.GET_EMPTY_DATA();
                 }
             }
         }

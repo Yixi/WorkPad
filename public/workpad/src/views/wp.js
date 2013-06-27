@@ -62,6 +62,43 @@
             return true;
         },
 
+        /*  create bullet point */
+        /**
+         * create a new bullet point id
+         *      xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  {8}-{4}-{4}-{4}-{12}
+         * @returns {string}
+         */
+        initNewBulletPointId:function(){
+            var randMd5 = hex_md5(Date.parse(new Date()).toString() + Math.random().toString()),
+                newItemId = "",
+                splitBy = [8,12,16,20];
+
+            for(var i = 0,len = randMd5.length,c; c = randMd5.charAt(i), i < len; i++){
+                newItemId += c;
+                if(splitBy.indexOf(i+1) > -1){
+                    newItemId += "-";
+                }
+            }
+            return newItemId;
+        },
+
+        initNewBulletPointData:function(){
+            var temp = workpad.data.predata.GET_DEFAULT_JSON();
+            temp.id = this.initNewBulletPointId();
+            return temp;
+        },
+
+        /**
+         * return the bullet point is expand
+         * @param itemid
+         * @returns {boolean}
+         */
+        isExpandWithID:function(itemid){
+            //TODO:finish this function
+
+            return true; // for test default is all expand.
+        },
+
         /**-------------------
          * private funciton to set the workpad content
          * @param content {HTMLstring}
