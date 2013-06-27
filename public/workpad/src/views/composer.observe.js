@@ -21,7 +21,7 @@
             editAreaElementA = this.editAreaA.getEditArea(),
             editAreaElementARealNode = this.editAreaA.getRealNode(),
             editAreaElementB = this.editAreaB.getEditArea(),
-            eidtAreaElementBRealNode = this.editAreaB.getRealNode();
+            editAreaElementBRealNode = this.editAreaB.getRealNode();
 
             pasteEvents = ["drop","paste"];
 
@@ -46,7 +46,15 @@
         }
 
         dom.observe(editAreaElementARealNode,"keydown",editAreasEvent);
-        dom.observe(eidtAreaElementBRealNode,"keydown",editAreasEvent);
+        dom.observe(editAreaElementBRealNode,"keydown",editAreasEvent);
+        dom.observe(editAreaElementARealNode,"focus",function(event){
+            that.editAreaA.lastEdit = true;
+            that.editAreaB.lastEdit = false;
+        })
+        dom.observe(editAreaElementBRealNode,"focus",function(event){
+            that.editAreaA.lastEdit = false;
+            that.editAreaB.lastEdit = true;
+        })
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){

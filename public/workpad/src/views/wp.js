@@ -27,16 +27,42 @@
             this._setContent(Dom);
         },
 
+        /* for single bullet point functions*/
+
         getElementByitemId:function(itemid){
             return this.element.querySelector(".item[data-id='"+itemid+"']");
         },
 
+        /**
+         * get the content by item id
+         * @param itemid
+         * @returns {*|string}
+         */
         getContentById: function(itemid){
             var ele = this.getElementByitemId(itemid);
-            debug(ele).debug();
+            return ele.querySelector(".content").innerHTML;
         },
 
         /**
+         * set the content by item id
+         * @param itemid
+         * @param content {String} , this can be text or HTML string.
+         */
+        setContentById: function(itemid,content){
+            var ele = this.getElementByitemId(itemid);
+            ele.querySelector(".content").innerHTML = content;
+        },
+
+        haveChildrenWithId:function(itemid){
+            var ele = this.getElementByitemId(itemid),
+                childNode = ele.querySelector(".children");
+            if(workpad.util.string(childNode.innerHTML).trim().length <1 ){
+                return false;
+            }
+            return true;
+        },
+
+        /**-------------------
          * private funciton to set the workpad content
          * @param content {HTMLstring}
          * @private

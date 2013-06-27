@@ -36,6 +36,18 @@
             }
         },
 
+        getCurrentUseEditAreaElement:function(){
+            return this.getCurrentUseEditArea().getEditArea();
+        },
+
+        getCurrentUseEditArea:function(){
+            if(this.editAreaA.lastEdit){
+                return this.editAreaA;
+            }else{
+                return this.editAreaB;
+            }
+        },
+
         /* private function */
 
         _initEditArea:function(){
