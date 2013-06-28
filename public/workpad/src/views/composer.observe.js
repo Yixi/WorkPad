@@ -30,20 +30,21 @@
 
         //Main Event handler.
 
-        var editAreasEvent = function(event){
-            var keyCode = event.keyCode;
-            if(keyCode === KEYS.ENTER_KEY){
-                event.preventDefault();
-                that.commands.exec("addItem");
-            }else if(keyCode === KEYS.TAB_KEY){
-                event.preventDefault();
-                if(event.shiftKey){
-                    that.commands.exec("outdentItem");
-                }else{
-                    that.commands.exec("indentItem");
+        var
+            editAreasEvent = function(event){
+                var keyCode = event.keyCode;
+                if(keyCode === KEYS.ENTER_KEY){
+                    event.preventDefault();
+                    that.commands.exec("addItem");
+                }else if(keyCode === KEYS.TAB_KEY){
+                    event.preventDefault();
+                    if(event.shiftKey){
+                        that.commands.exec("outdentItem");
+                    }else{
+                        that.commands.exec("indentItem");
+                    }
                 }
-            }
-        }
+            };
 
         dom.observe(editAreaElementARealNode,"keydown",editAreasEvent);
         dom.observe(editAreaElementBRealNode,"keydown",editAreasEvent);
@@ -55,15 +56,18 @@
             that.editAreaA.lastEdit = false;
             that.editAreaB.lastEdit = true;
         })
+        that.editAreaA.handleContentChange(function(event){
+            that.commandExec("syncContent",that.editAreaA);
+        });
+        that.editAreaB.handleContentChange(function(event){
+            that.commandExec("syncContent",that.editAreaB);
+        });
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){
             var itemEle = dom.getParentElement(event.target,{nodeName:"DIV",className:"item"}),
-                contentText = event.target.textContent,
                 itemid = dom.getAttribute("data-id").from(itemEle);
-            dom.offset(that.getUseHoverEditAreaElement()).set(dom.offset(event.target).get());
-            that.getUseHoverEditArea().setContent(contentText);
-            dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(that.getUseHoverEditAreaElement());
+            that.setEditAreaWithItemIdForContent(that.getUseHoverEditArea(),itemid);
         });
 
     }

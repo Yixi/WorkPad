@@ -49,7 +49,7 @@
             return this.editArea;
         },
 
-        /** this function to return the real editArea like <textarea> for event handler. */
+        // this function to return the real editArea like <textarea> for event handler.
         getRealNode:function(){
             return this.editArea.getElementsByTagName("textarea")[0];
         },
@@ -66,6 +66,11 @@
         empty:function(){
             this.editArea.getElementsByTagName("textarea")[0].value = "";
             return this;
+        },
+
+        handleContentChange:function(fn){
+            var ele = this.getRealNode();
+            ele.addEventListener("input",fn,false);
         },
 
         /**

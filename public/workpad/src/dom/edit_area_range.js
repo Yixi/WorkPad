@@ -10,22 +10,50 @@
 
 ;(function(workpad){
 
-    var setSelection,getSelection,makeSelection;
+    var setSelection,getSelection,collapseSelection;
 
-    makeSelection = function(ele,start,end){
+    function makeSelection(ele,start,end){
         return {
             start:start,
             end:end,
             length:end - start,
             text: ele.value.slice(start,end)
         };
-    };
+    }
+
+    function adjustOffsets(ele,start,end){
+        if(start < 0 ){
+            start += ele.value.length;
+        }
+        if(typeof end == "undefined"){
+            end = start;
+        }
+        if(end < 0 ){
+            end += ele.value.length;
+        }
+        return {start:start,end:end};
+    }
 
     getSelection = function(ele){
         var start = ele.selectionStart,
             end = ele.selectionEnd;
         return makeSelection(ele,start,end);
     };
+
+    setSelection = function(ele, startOffset, endOffset){
+        var offsets = adjustOffsets(ele, startOffset, endOffset);
+        ele.selectionStart = offsets.start;
+        ele.selectionEnd = offsets.end;
+    };
+
+    collapseSelection = function(ele, toStart){
+        if (toStart){
+            ele.selectionEnd = ele.selectionStart;
+        }else{
+            ele.selectionStart = ele.selectionEnd;
+        }
+    };
+
 
 
     workpad.dom.editAreaRange = Base.extend({
@@ -36,7 +64,12 @@
         getSelection:function(){
             return getSelection(this.element);
         },
-
+        setSelection:function(start,end){
+            setSelection(this.element, start, end);
+        },
+        setCursorLocation:function(index){
+            setSelection(this.element,index);
+        },
         getLRchar:function(){
             var selection = getSelection(this.element),
                 textContent = this.element.value;

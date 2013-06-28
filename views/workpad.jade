@@ -2,10 +2,13 @@
 extends layout
 
 block content
+    link(rel='stylesheet/less', href='/workpad/asset/style.less',type="text/css")
+    script(src="/workpad/lib/less/less-1.3.3.min.js")
     div#contentmain
-        div#workpad
+        div#workpad.workpad
     script(src="/workpad/src/workpad.js")
     script(src="/workpad/lib/base/base.js")
+    script(src="/workpad/lib/md5/md5-min.js")
     script(src="/workpad/src/browser.js")
     script(src="/workpad/src/util/debug.js")
     script(src="/workpad/src/util/array.js")
@@ -19,6 +22,7 @@ block content
     script(src="/workpad/src/dom/attributes.js")
     script(src="/workpad/src/dom/styles.js")
     script(src="/workpad/src/dom/offset.js")
+    script(src="/workpad/src/dom/get_as_dom.js")
     script(src="/workpad/src/dom/insert.js")
     script(src="/workpad/src/dom/observe.js")
     script(src="/workpad/src/dom/delegate.js")
@@ -34,6 +38,7 @@ block content
     script(src="/workpad/src/views/composer.dispatcher.js")
     script(src="/workpad/src/views/composer.commands.js")
     script(src="/workpad/src/views/commands/add_item.js")
+    script(src="/workpad/src/views/commands/sync_content.js")
     script(src="/workpad/src/views/wp.js")
     script(src="/workpad/src/views/wp.dom.js")
     script(src="/workpad/src/init.js")

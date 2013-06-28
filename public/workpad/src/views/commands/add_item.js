@@ -12,17 +12,21 @@
     exec:function(editor,command){
         workpad.util.debug("Get Event:","additem:dispatcher").info();
         var dom = workpad.dom,
-            editArea = editor.composer.getCurrentUseEditArea(),
+            composer = editor.composer,
+            editArea = composer.getCurrentUseEditArea(),
             wp = editor.wp,
             char = editArea.getLRchar(),
             currentItemId = workpad.dom.getAttribute("data-id").from(editArea.getEditArea()),
-            currentItemElement = wp.getElementByitemId(currentItemId);
+            currentItemElement = wp.getElementByitemId(currentItemId),
             haveChildren = wp.haveChildrenWithId(currentItemId),
             isExpand = wp.isExpandWithID(currentItemId),
-            newData = wp.initNewBulletPointData(),
-            newDataDom = wp.buildHTMLBySingleData(newData);
+            newItemData = wp.initNewBulletPointData(),
+            newItemId = newItemData.id,
+            newItemElement = dom.getAsDom(wp.buildHTMLBySingleData(newItemData));
 
-        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newData,newDataDom).debug();
+        composer.hideEditArea(composer.getUseHoverEditArea());
+
+        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
 
         /*
             there have different case have different behavior
@@ -74,6 +78,10 @@
              */
 
             workpad.util.debug("Add item case 2").info();
+            dom.insert(newItemElement).after(currentItemElement);
+            wp.setContentById(currentItemId,char.left);
+            composer.setEditAreaWithItemIdForContent(editArea,newItemId);
+
         }else{
             /*
                 case 3: when the cursor at the middle or start of the bullet point, if at the start of the bullet point
@@ -94,14 +102,20 @@
                  · | abcd ef dalf      <== ID 1
                     · the child        <== ID 2
                  <=================enter====================>
-                 · |                   <== ID 3 (new focus)
-                 · abcd ef dalf        <== ID 1
+                 ·                     <== ID 3 (new)
+                 · | abcd ef dalf      <== ID 1 (focus)
                     · the child        <== ID 2
 
              */
 
             workpad.util.debug("Add item case 3").info();
-            dom.insert(newDataDom).before(currentItemElement);
+            dom.insert(newItemElement).before(currentItemElement);
+            wp.setContentById(currentItemId,char.right);
+            wp.setContentById(newItemId,char.left);
+            composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
+            editArea.setCursorLocation(0);
+
+            //TODO:send data modify log
         }
 
     }

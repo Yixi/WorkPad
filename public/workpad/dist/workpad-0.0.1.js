@@ -626,16 +626,32 @@ workpad.browser = (function(){
 workpad.data.predata = (function(){
 
     var EMPTY_DATA = [{
-        content:"Begin to edit your workpad",
-        description:"",
-        id:"00000000-0000-0000-0000-000000000000",
-        expand:true,
-        children:[]
-    }];
+            content:"Begin to edit your workpad",
+            description:"",
+            id:"00000000-0000-0000-0000-000000000000",
+            expand:true,
+            children:[]
+        }],
+        DEFAULT_JSON = {
+            content:"",
+            description:"",
+            id:"",
+            expand:true,
+            children:[]
+        };
+    /* must clone the data to return for use */
+    function cloneData(data){
+        return JSON.parse(JSON.stringify(data));
+    }
 
     return {
-        EMPTY_DATA:EMPTY_DATA
-    }
+        GET_EMPTY_DATA:function(){
+            return cloneData(EMPTY_DATA);
+        },
+        GET_DEFAULT_JSON: function(){
+            return cloneData(DEFAULT_JSON);
+        }
+    };
 
 })();
 /**
@@ -691,12 +707,12 @@ workpad.data.check = function(jsonData){
                         }
                     }
                     if(newArr.length<1){
-                        newArr = workpad.data.predata.EMPTY_DATA;
+                        newArr = workpad.data.predata.GET_EMPTY_DATA();
                     }
                     return newArr;
 
                 }else{
-                    return workpad.data.predata.EMPTY_DATA;
+                    return workpad.data.predata.GET_EMPTY_DATA();
                 }
             }
         }
@@ -1097,6 +1113,42 @@ workpad.data.check = function(jsonData){
     }
 
 })(workpad);/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * Returns the given html wrapped in a div element
+ *
+ */
+
+;workpad.dom.getAsDom = (function(){
+
+    var _innerHTMLshiv = function(html,context){
+        var tempElement = context.createElement("div");
+        tempElement.style.display ="none";
+        context.body.appendChild(tempElement);
+        try { tempElement.innerHTML = html } catch (e){}
+        context.body.removeChild(tempElement);
+        return tempElement;
+    }
+
+    return function(html,context){
+        context = context || document;
+        var tempElement;
+        if(typeof(html) === "object" && html.nodeType){
+            tempElement = context.createElement("div");
+            tempElement.appendChild(html);
+        }else{
+            tempElement = _innerHTMLshiv(html,context);
+        }
+        var childNodes = tempElement.childNodes;
+        if(childNodes.length==1){
+            childNodes = childNodes[0];
+        }
+        return childNodes;
+    };
+})();/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -1596,6 +1648,15 @@ workpad.views.View = Base.extend({
             }
         },
 
+        /*set the editArea */
+
+        setEditAreaWithItemIdForContent:function(editarea,itemid){
+            var itemElement = this.wp.getContentElementById(itemid);
+            dom.offset(editarea.getEditArea()).set(dom.offset(itemElement).get());
+            editarea.setContent(itemElement.textContent);
+            dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(editarea.getEditArea());
+        },
+
         /* private function */
 
         _initEditArea:function(){
@@ -1779,13 +1840,20 @@ workpad.views.View = Base.extend({
 ;workpad.views.Composer.commandCenter.addItem = {
     exec:function(editor,command){
         workpad.util.debug("Get Event:","additem:dispatcher").info();
-        var editArea = editor.composer.getCurrentUseEditArea(),
+        var dom = workpad.dom,
+            composer = editor.composer,
+            editArea = composer.getCurrentUseEditArea(),
             wp = editor.wp,
             char = editArea.getLRchar(),
             currentItemId = workpad.dom.getAttribute("data-id").from(editArea.getEditArea()),
+            currentItemElement = wp.getElementByitemId(currentItemId),
             haveChildren = wp.haveChildrenWithId(currentItemId),
-            isExpand = wp.isExpandWithID(currentItemId);
-        workpad.util.debug(char,currentItemId,haveChildren,isExpand).debug();
+            isExpand = wp.isExpandWithID(currentItemId),
+            newItemData = wp.initNewBulletPointData(),
+            newItemId = newItemData.id,
+            newItemElement = dom.getAsDom(wp.buildHTMLBySingleData(newItemData));
+
+        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
 
         /*
             there have different case have different behavior
@@ -1857,13 +1925,17 @@ workpad.views.View = Base.extend({
                  · | abcd ef dalf      <== ID 1
                     · the child        <== ID 2
                  <=================enter====================>
-                 · |                   <== ID 3 (new focus)
-                 · abcd ef dalf        <== ID 1
+                 ·                     <== ID 3 (new)
+                 · | abcd ef dalf      <== ID 1 (focus)
                     · the child        <== ID 2
 
              */
 
             workpad.util.debug("Add item case 3").info();
+            dom.insert(newItemElement).before(currentItemElement);
+            wp.setContentById(currentItemId,char.right);
+            wp.setContentById(newItemId,char.left);
+            composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
         }
 
     }
@@ -1932,10 +2004,39 @@ workpad.views.View = Base.extend({
             return true;
         },
 
+
+        /* this function will return the element of bulletPoint */
+
+        getContentElementById:function(itemid){
+            return this.getElementByitemId(itemid).querySelector("div.content");
+        },
+
+
+
         /*  create bullet point */
+        /**
+         * create a new bullet point id
+         *      xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  {8}-{4}-{4}-{4}-{12}
+         * @returns {string}
+         */
+        initNewBulletPointId:function(){
+            var randMd5 = hex_md5(Date.parse(new Date()).toString() + Math.random().toString()),
+                newItemId = "",
+                splitBy = [8,12,16,20];
 
-        initNewBulletPoint:function(){
+            for(var i = 0,len = randMd5.length,c; c = randMd5.charAt(i), i < len; i++){
+                newItemId += c;
+                if(splitBy.indexOf(i+1) > -1){
+                    newItemId += "-";
+                }
+            }
+            return newItemId;
+        },
 
+        initNewBulletPointData:function(){
+            var temp = workpad.data.predata.GET_DEFAULT_JSON();
+            temp.id = this.initNewBulletPointId();
+            return temp;
         },
 
         /**

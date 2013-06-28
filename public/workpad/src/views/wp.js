@@ -62,6 +62,15 @@
             return true;
         },
 
+
+        /* this function will return the element of bulletPoint */
+
+        getContentElementById:function(itemid){
+            return this.getElementByitemId(itemid).querySelector("div.content");
+        },
+
+
+
         /*  create bullet point */
         /**
          * create a new bullet point id

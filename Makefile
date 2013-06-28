@@ -13,6 +13,7 @@ WORKPAD_MIN_SOURCEMAP_OUTPUT = "${OUTPUT_URI}/workpad.js.map"
 
 WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/lib/base/base.js \
+  ${BASEURI}/lib/md5/md5-min.js \
   ${BASEURI}/src/browser.js \
   ${BASEURI}/src/util/debug.js \
   ${BASEURI}/src/util/array.js \
@@ -26,6 +27,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/attributes.js \
   ${BASEURI}/src/dom/styles.js \
   ${BASEURI}/src/dom/offset.js \
+  ${BASEURI}/src/dom/get_as_dom.js \
   ${BASEURI}/src/dom/insert.js \
   ${BASEURI}/src/dom/observe.js \
   ${BASEURI}/src/dom/delegate.js \
@@ -41,6 +43,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/views/composer.dispatcher.js \
   ${BASEURI}/src/views/composer.commands.js \
   ${BASEURI}/src/views/commands/add_item.js \
+  ${BASEURI}/src/views/commands/sync_content.js \
   ${BASEURI}/src/views/wp.js \
   ${BASEURI}/src/views/wp.dom.js \
   ${BASEURI}/src/init.js
@@ -60,6 +63,11 @@ bundle:
 	@@mv "${WORKPAD_OUTPUT}.tmp" ${WORKPAD_OUTPUT}
 	@@echo "Bunling workpad.js complete"
 	@@echo "--------------------------------------------------------"
+	@@echo "Build the style.... "
+	@@lessc ${BASEURI}/asset/style.less > ${BASEURI}/asset/style.css -x
+	@@echo "style build complete"
+	@@echo "--------------------------------------------------------"
+
 
 minify:
 	@@echo "Minifying..."

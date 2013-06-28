@@ -48,6 +48,21 @@
             }
         },
 
+        /*set the editArea */
+
+        setEditAreaWithItemIdForContent:function(editarea,itemid){
+            var itemElement = this.wp.getContentElementById(itemid);
+            dom.offset(editarea.getEditArea()).set(dom.offset(itemElement).get());
+            editarea.getEditArea().style.display = "";
+            editarea.setContent(itemElement.textContent);
+            dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(editarea.getEditArea());
+        },
+
+        hideEditArea:function(editarea){
+            dom.offset(editarea.getEditArea()).set({top:0,left:0});
+            editarea.getEditArea().style.display = "none";
+        },
+
         /* private function */
 
         _initEditArea:function(){
