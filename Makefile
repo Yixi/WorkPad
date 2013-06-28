@@ -44,6 +44,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/views/composer.commands.js \
   ${BASEURI}/src/views/commands/add_item.js \
   ${BASEURI}/src/views/commands/sync_content.js \
+  ${BASEURI}/src/views/commands/indent.js \
   ${BASEURI}/src/views/wp.js \
   ${BASEURI}/src/views/wp.dom.js \
   ${BASEURI}/src/init.js

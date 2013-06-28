@@ -63,8 +63,18 @@
         return null;
     }
 
-    return function(node, matchingSet, levels){
+    return function(node, matchingSet,levels,ignoreSelf){
+
+        if(arguments.length == 3){
+            if(typeof levels == "boolean"){
+                ignoreSelf = levels;
+                levels = 70;
+            }
+        }
         levels = levels || 70;
+        if(ignoreSelf){
+            node = node.parentNode;
+        }
         if(matchingSet.className || matchingSet.classRegExp){
             return _getParentElementWithNodeNameAndClassName(node, matchingSet.nodeName, matchingSet.className, matchingSet.classRegExp ,levels);
         }else{

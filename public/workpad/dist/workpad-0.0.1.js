@@ -1326,8 +1326,18 @@ workpad.dom.observe = function(element,eventNames,handler){
         return null;
     }
 
-    return function(node, matchingSet, levels){
+    return function(node, matchingSet,levels,ignoreSelf){
+
+        if(arguments.length == 3){
+            if(typeof levels == "boolean"){
+                ignoreSelf = levels;
+                levels = 70;
+            }
+        }
         levels = levels || 70;
+        if(ignoreSelf){
+            node = node.parentNode;
+        }
         if(matchingSet.className || matchingSet.classRegExp){
             return _getParentElementWithNodeNameAndClassName(node, matchingSet.nodeName, matchingSet.className, matchingSet.classRegExp ,levels);
         }else{
@@ -1347,22 +1357,50 @@ workpad.dom.observe = function(element,eventNames,handler){
 
 ;(function(workpad){
 
-    var setSelection,getSelection,makeSelection;
+    var setSelection,getSelection,collapseSelection;
 
-    makeSelection = function(ele,start,end){
+    function makeSelection(ele,start,end){
         return {
             start:start,
             end:end,
             length:end - start,
             text: ele.value.slice(start,end)
         };
-    };
+    }
+
+    function adjustOffsets(ele,start,end){
+        if(start < 0 ){
+            start += ele.value.length;
+        }
+        if(typeof end == "undefined"){
+            end = start;
+        }
+        if(end < 0 ){
+            end += ele.value.length;
+        }
+        return {start:start,end:end};
+    }
 
     getSelection = function(ele){
         var start = ele.selectionStart,
             end = ele.selectionEnd;
         return makeSelection(ele,start,end);
     };
+
+    setSelection = function(ele, startOffset, endOffset){
+        var offsets = adjustOffsets(ele, startOffset, endOffset);
+        ele.selectionStart = offsets.start;
+        ele.selectionEnd = offsets.end;
+    };
+
+    collapseSelection = function(ele, toStart){
+        if (toStart){
+            ele.selectionEnd = ele.selectionStart;
+        }else{
+            ele.selectionStart = ele.selectionEnd;
+        }
+    };
+
 
 
     workpad.dom.editAreaRange = Base.extend({
@@ -1373,7 +1411,12 @@ workpad.dom.observe = function(element,eventNames,handler){
         getSelection:function(){
             return getSelection(this.element);
         },
-
+        setSelection:function(start,end){
+            setSelection(this.element, start, end);
+        },
+        setCursorLocation:function(index){
+            setSelection(this.element,index);
+        },
         getLRchar:function(){
             var selection = getSelection(this.element),
                 textContent = this.element.value;
@@ -1436,7 +1479,7 @@ workpad.dom.observe = function(element,eventNames,handler){
             return this.editArea;
         },
 
-        /** this function to return the real editArea like <textarea> for event handler. */
+        // this function to return the real editArea like <textarea> for event handler.
         getRealNode:function(){
             return this.editArea.getElementsByTagName("textarea")[0];
         },
@@ -1453,6 +1496,11 @@ workpad.dom.observe = function(element,eventNames,handler){
         empty:function(){
             this.editArea.getElementsByTagName("textarea")[0].value = "";
             return this;
+        },
+
+        handleContentChange:function(fn){
+            var ele = this.getRealNode();
+            ele.addEventListener("input",fn,false);
         },
 
         /**
@@ -1653,8 +1701,14 @@ workpad.views.View = Base.extend({
         setEditAreaWithItemIdForContent:function(editarea,itemid){
             var itemElement = this.wp.getContentElementById(itemid);
             dom.offset(editarea.getEditArea()).set(dom.offset(itemElement).get());
+            editarea.getEditArea().style.display = "";
             editarea.setContent(itemElement.textContent);
             dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(editarea.getEditArea());
+        },
+
+        hideEditArea:function(editarea){
+            dom.offset(editarea.getEditArea()).set({top:0,left:0});
+            editarea.getEditArea().style.display = "none";
         },
 
         /* private function */
@@ -1729,20 +1783,21 @@ workpad.views.View = Base.extend({
 
         //Main Event handler.
 
-        var editAreasEvent = function(event){
-            var keyCode = event.keyCode;
-            if(keyCode === KEYS.ENTER_KEY){
-                event.preventDefault();
-                that.commands.exec("addItem");
-            }else if(keyCode === KEYS.TAB_KEY){
-                event.preventDefault();
-                if(event.shiftKey){
-                    that.commands.exec("outdentItem");
-                }else{
-                    that.commands.exec("indentItem");
+        var
+            editAreasEvent = function(event){
+                var keyCode = event.keyCode;
+                if(keyCode === KEYS.ENTER_KEY){
+                    event.preventDefault();
+                    that.commands.exec("addItem");
+                }else if(keyCode === KEYS.TAB_KEY){
+                    event.preventDefault();
+                    if(event.shiftKey){
+                        that.commands.exec("outdentItem");
+                    }else{
+                        that.commands.exec("indentItem");
+                    }
                 }
-            }
-        }
+            };
 
         dom.observe(editAreaElementARealNode,"keydown",editAreasEvent);
         dom.observe(editAreaElementBRealNode,"keydown",editAreasEvent);
@@ -1754,15 +1809,18 @@ workpad.views.View = Base.extend({
             that.editAreaA.lastEdit = false;
             that.editAreaB.lastEdit = true;
         })
+        that.editAreaA.handleContentChange(function(event){
+            that.commandExec("syncContent",that.editAreaA);
+        });
+        that.editAreaB.handleContentChange(function(event){
+            that.commandExec("syncContent",that.editAreaB);
+        });
 
         // ----- set the editArea location -----
         dom.delegate(element,".content","mouseover",function(event){
             var itemEle = dom.getParentElement(event.target,{nodeName:"DIV",className:"item"}),
-                contentText = event.target.textContent,
                 itemid = dom.getAttribute("data-id").from(itemEle);
-            dom.offset(that.getUseHoverEditAreaElement()).set(dom.offset(event.target).get());
-            that.getUseHoverEditArea().setContent(contentText);
-            dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(that.getUseHoverEditAreaElement());
+            that.setEditAreaWithItemIdForContent(that.getUseHoverEditArea(),itemid);
         });
 
     }
@@ -1791,10 +1849,12 @@ workpad.views.View = Base.extend({
 
         editor.on("indentItem:dispatcher",function(){
            util.debug("Editor on Event:", "indentItem:dispatcher").info();
+           that.commandExec("indentItem");
         });
 
         editor.on("outdentItem:dispatcher",function(){
             util.debug("Editor on Event:", "outdentItem:dispatcher").info();
+            that.commandExec("outdentItem");
         });
     };
 
@@ -1853,7 +1913,9 @@ workpad.views.View = Base.extend({
             newItemId = newItemData.id,
             newItemElement = dom.getAsDom(wp.buildHTMLBySingleData(newItemData));
 
-        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
+        composer.hideEditArea(composer.getUseHoverEditArea());
+
+//        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
 
         /*
             there have different case have different behavior
@@ -1905,6 +1967,10 @@ workpad.views.View = Base.extend({
              */
 
             workpad.util.debug("Add item case 2").info();
+            dom.insert(newItemElement).after(currentItemElement);
+            wp.setContentById(currentItemId,char.left);
+            composer.setEditAreaWithItemIdForContent(editArea,newItemId);
+
         }else{
             /*
                 case 3: when the cursor at the middle or start of the bullet point, if at the start of the bullet point
@@ -1936,6 +2002,9 @@ workpad.views.View = Base.extend({
             wp.setContentById(currentItemId,char.right);
             wp.setContentById(newItemId,char.left);
             composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
+            editArea.setCursorLocation(0);
+
+            //TODO:send data modify log
         }
 
     }
@@ -1946,11 +2015,92 @@ workpad.views.View = Base.extend({
  * Author: liuyixi
  * Copyright (c) 2013 Yixi
  *
+ * this use for sync the content from the editarea to the workpad bullet point.
+ *
+ */
+
+;workpad.views.Composer.commandCenter.syncContent = {
+    exec:function(editor,command,editArea){
+
+
+
+        var dom = workpad.dom,
+            composer = editor.composer,
+            wp = editor.wp,
+            editAreaElement = editArea.getEditArea(),
+            itemId = dom.getAttribute("data-id").from(editAreaElement),
+            innerType = dom.getAttribute("data-type").from(editAreaElement);
+
+//        workpad.util.debug(itemId,innerType,editArea.getContent()).debug();
+
+        if (innerType === "content"){
+            wp.setContentById(itemId,editArea.getContent());
+        }
+
+
+        //TODO: this is mean modify the content , but when to send the log ?
+
+    }
+};/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
+ * indent / outdent item.
+ *
+ */
+
+;workpad.views.Composer.commandCenter.indentItem = {
+    exec:function(editor,command){
+        workpad.util.debug("Get Event:","indentItem:dispatcher").info();
+        var dom = workpad.dom,
+            composer = editor.composer,
+            editArea = composer.getCurrentUseEditArea(),
+            wp = editor.wp,
+            currentItemId = workpad.dom.getAttribute("data-id").from(editArea.getEditArea()),
+            currentItemElement = wp.getElementByitemId(currentItemId),
+            prevItemElement = wp.getPrevElementItemByItemId(currentItemId),
+            prevItemId = prevItemElement && dom.getAttribute("data-id").from(prevItemElement);
+
+        if(prevItemElement){
+            dom.insert(currentItemElement).into(prevItemElement.querySelector(".children"));
+            composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
+        }
+    }
+};
+
+
+workpad.views.Composer.commandCenter.outdentItem = {
+    exec:function(editor,command){
+        workpad.util.debug("Get Event:","outdentItem:dispatcher").info();
+        var dom = workpad.dom,
+            composer = editor.composer,
+            editArea = composer.getCurrentUseEditArea(),
+            wp = editor.wp,
+            currentItemId = workpad.dom.getAttribute("data-id").from(editArea.getEditArea()),
+            currentItemElement = wp.getElementByitemId(currentItemId),
+            parentItemElement = wp.getParentElementByitemId(currentItemId),
+            parentItemId = parentItemElement && dom.getAttribute("data-id").from(parentItemElement);
+
+        if(parentItemElement){
+            dom.insert(currentItemElement).after(parentItemElement);
+            composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
+        }
+
+    }
+}/**
+ * @license workpad v0.0.1
+ * https://github.com/Yixi/WorkPad
+ * Author: liuyixi
+ * Copyright (c) 2013 Yixi
+ *
  * This is workpad edit area constructor.
  *
  */
 (function(workpad){
     var D = workpad.data,
+        dom = workpad.dom,
         debug = workpad.util.debug;
 
     workpad.views.Wp = workpad.views.View.extend({
@@ -1973,6 +2123,17 @@ workpad.views.View = Base.extend({
 
         getElementByitemId:function(itemid){
             return this.element.querySelector(".item[data-id='"+itemid+"']");
+        },
+
+
+        /** find bullet points */
+
+        getPrevElementItemByItemId:function(itemid){
+            return this.getElementByitemId(itemid).previousElementSibling;
+        },
+
+        getParentElementByitemId:function(itemid){
+            return dom.getParentElement(this.getElementByitemId(itemid),{nodeName:"DIV", className:"item"},true);
         },
 
         /**

@@ -26,7 +26,7 @@
 
         composer.hideEditArea(composer.getUseHoverEditArea());
 
-        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
+//        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
 
         /*
             there have different case have different behavior

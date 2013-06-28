@@ -26,5 +26,8 @@
             wp.setContentById(itemId,editArea.getContent());
         }
 
+
+        //TODO: this is mean modify the content , but when to send the log ?
+
     }
 };

@@ -9,6 +9,7 @@
  */
 (function(workpad){
     var D = workpad.data,
+        dom = workpad.dom,
         debug = workpad.util.debug;
 
     workpad.views.Wp = workpad.views.View.extend({
@@ -31,6 +32,17 @@
 
         getElementByitemId:function(itemid){
             return this.element.querySelector(".item[data-id='"+itemid+"']");
+        },
+
+
+        /** find bullet points */
+
+        getPrevElementItemByItemId:function(itemid){
+            return this.getElementByitemId(itemid).previousElementSibling;
+        },
+
+        getParentElementByitemId:function(itemid){
+            return dom.getParentElement(this.getElementByitemId(itemid),{nodeName:"DIV", className:"item"},true);
         },
 
         /**

@@ -22,10 +22,12 @@
 
         editor.on("indentItem:dispatcher",function(){
            util.debug("Editor on Event:", "indentItem:dispatcher").info();
+           that.commandExec("indentItem");
         });
 
         editor.on("outdentItem:dispatcher",function(){
             util.debug("Editor on Event:", "outdentItem:dispatcher").info();
+            that.commandExec("outdentItem");
         });
     };
 
