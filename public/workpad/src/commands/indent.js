@@ -8,14 +8,14 @@
  *
  */
 
-workpad.commands.indentItem = {
+;workpad.commands.indentItem = {
     exec:function(editor, command){
         editor.fire("indentItem:dispatcher");
     }
 };
 
-workpad.commands.outdentItem ={
+;workpad.commands.outdentItem ={
     exec:function(editor, command){
         editor.fire("outdentItem:dispatcher");
     }
-}
+};

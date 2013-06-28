@@ -1596,17 +1596,17 @@ workpad.commands.addItem = {
  *
  */
 
-workpad.commands.indentItem = {
+;workpad.commands.indentItem = {
     exec:function(editor, command){
         editor.fire("indentItem:dispatcher");
     }
 };
 
-workpad.commands.outdentItem ={
+;workpad.commands.outdentItem ={
     exec:function(editor, command){
         editor.fire("outdentItem:dispatcher");
     }
-}/**
+};/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi
@@ -2089,7 +2089,7 @@ workpad.views.Composer.commandCenter.outdentItem = {
         }
 
     }
-}/**
+};/**
  * @license workpad v0.0.1
  * https://github.com/Yixi/WorkPad
  * Author: liuyixi

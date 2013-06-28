@@ -46,4 +46,4 @@ workpad.views.Composer.commandCenter.outdentItem = {
         }
 
     }
-}
+};
