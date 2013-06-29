@@ -26,6 +26,10 @@
 
         composer.hideEditArea(composer.getUseHoverEditArea());
 
+        if(workpad.util.string(wp.getContentById(currentItemId)).trim().length<1){
+            return;
+        }
+
 //        workpad.util.debug(char,currentItemId,currentItemElement,haveChildren,isExpand,newItemData,newItemElement).debug();
 
         /*
@@ -51,6 +55,10 @@
              */
 
             workpad.util.debug("Add item case 1").info();
+            var firstChild = wp.getFirstChildElementByItemId(currentItemId);
+            dom.insert(newItemElement).before(firstChild);
+            composer.setEditAreaWithItemIdForContent(editArea,newItemId);
+
 
         }else if(!haveChildren && char.right.length<1){
             /*
