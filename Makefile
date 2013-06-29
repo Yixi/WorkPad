@@ -13,7 +13,7 @@ WORKPAD_MIN_SOURCEMAP_OUTPUT = "${OUTPUT_URI}/workpad.js.map"
 
 WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/lib/base/base.js \
-  ${BASEURI}/lib/md5/md5-min.js \
+  ${BASEURI}/lib/md5/md5.js \
   ${BASEURI}/src/browser.js \
   ${BASEURI}/src/util/debug.js \
   ${BASEURI}/src/util/array.js \
