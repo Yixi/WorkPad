@@ -43,6 +43,12 @@
                     }else{
                         that.commands.exec("indentItem");
                     }
+                }else if(keyCode === KEYS.UP_KEY){
+                    event.preventDefault();
+                    that.commands.exec("moveUp");
+                }else if(keyCode === KEYS.DOWN_KEY){
+                    event.preventDefault();
+                    that.commands.exec("moveDown");
                 }
             };
 

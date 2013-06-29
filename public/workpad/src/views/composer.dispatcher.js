@@ -29,6 +29,16 @@
             util.debug("Editor on Event:", "outdentItem:dispatcher").info();
             that.commandExec("outdentItem");
         });
+
+        editor.on("editAreaMoveUp:dispatcher",function(){
+            util.debug("Editor on Event:", "editAreaMoveUp:dispatcher").info();
+            that.commandExec("moveUp");
+        });
+
+        editor.on("editAreaMoveDown:dispatcher",function(){
+            util.debug("Editor on Event:", "editAreaMoveDown:dispatcher").info();
+            that.commandExec("moveDown");
+        });
     };
 
 })(workpad);

@@ -1796,6 +1796,8 @@ workpad.views.View = Base.extend({
                     }else{
                         that.commands.exec("indentItem");
                     }
+                }else if(keyCode === KEYS.UP_KEY){
+
                 }
             };
 
@@ -2062,7 +2064,7 @@ workpad.views.View = Base.extend({
             currentItemElement = wp.getElementByitemId(currentItemId),
             prevItemElement = wp.getPrevElementItemByItemId(currentItemId),
             prevItemId = prevItemElement && dom.getAttribute("data-id").from(prevItemElement);
-
+        composer.hideEditArea(composer.getUseHoverEditArea());
         if(prevItemElement){
             dom.insert(currentItemElement).into(prevItemElement.querySelector(".children"));
             composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
@@ -2082,7 +2084,7 @@ workpad.views.Composer.commandCenter.outdentItem = {
             currentItemElement = wp.getElementByitemId(currentItemId),
             parentItemElement = wp.getParentElementByitemId(currentItemId),
             parentItemId = parentItemElement && dom.getAttribute("data-id").from(parentItemElement);
-
+        composer.hideEditArea(composer.getUseHoverEditArea());
         if(parentItemElement){
             dom.insert(currentItemElement).after(parentItemElement);
             composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
@@ -2135,6 +2137,26 @@ workpad.views.Composer.commandCenter.outdentItem = {
         getParentElementByitemId:function(itemid){
             return dom.getParentElement(this.getElementByitemId(itemid),{nodeName:"DIV", className:"item"},true);
         },
+
+        /** get the up down */
+
+        getTheUpElementByItemId: function(itemid){
+            var current = this.getElementByitemId(itemid);
+            var prev_tmp = this.getPrevElementItemByItemId(itemid);
+            if(prev_tmp){
+                return prev_tmp;
+            }
+            var parent_tmp = this.getParentElementByitemId(itemid);
+            return parent_tmp;
+        },
+        getTheUpItemIdByCurrent: function(itemid){
+            var up = this.getTheUpElementByItemId(itemid);
+            return dom.getAttribute("data-id").from(up);
+        },
+        getNextItemId: function(itemid){
+
+        },
+
 
         /**
          * get the content by item id

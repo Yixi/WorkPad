@@ -41,9 +41,67 @@
             return this.getElementByitemId(itemid).previousElementSibling;
         },
 
+        getNextElementItemByItemId:function(itemid){
+            return this.getElementByitemId(itemid).nextElementSibling;
+        },
+
         getParentElementByitemId:function(itemid){
             return dom.getParentElement(this.getElementByitemId(itemid),{nodeName:"DIV", className:"item"},true);
         },
+
+        getFirstChildElementByItemId: function(itemid){
+            if(this.haveChildrenWithId(itemid)){
+                var childrens = this.getElementByitemId(itemid).querySelector(".children").childNodes;
+                return childrens[0];
+            }
+        },
+        getLastChildElementByItemId: function(itemid){
+            if(this.haveChildrenWithId(itemid)){
+                var childrens = this.getElementByitemId(itemid).querySelector(".children").childNodes;
+                return childrens[childrens.length-1];
+            }
+        },
+
+        /** get the up down */
+
+        getTheUpElementByItemId: function(itemid){
+            var current = this.getElementByitemId(itemid);
+            var prev_tmp = this.getPrevElementItemByItemId(itemid);
+            if(prev_tmp){
+                var prev_tmp_id = dom.getAttribute("data-id").from(prev_tmp);
+                if(this.haveChildrenWithId(prev_tmp_id)){
+                    return this.getLastChildElementByItemId(prev_tmp_id);
+                }
+                return prev_tmp;
+            }
+            var parent_tmp = this.getParentElementByitemId(itemid);
+            return parent_tmp;
+        },
+        getTheUpItemIdByCurrent: function(itemid){
+            var up = this.getTheUpElementByItemId(itemid);
+            return up && dom.getAttribute("data-id").from(up);
+        },
+
+        getTheDownElementByItemId: function(itemid, isStack){
+            var current = this.getElementByitemId(itemid),
+                next_tmp = this.getNextElementItemByItemId(itemid),
+                haveChild = this.haveChildrenWithId(itemid);
+            if(!isStack && haveChild){
+                return this.getFirstChildElementByItemId(itemid);
+            }
+            if(next_tmp){
+                return next_tmp;
+            }
+            var parent_tmp = this.getParentElementByitemId(itemid);
+            if(parent_tmp){
+                return this.getTheDownElementByItemId(dom.getAttribute("data-id").from(parent_tmp),true);
+            }
+        },
+        getTheDownItemIdByCurrent: function(itemid){
+            var down = this.getTheDownElementByItemId(itemid);
+            return down && dom.getAttribute("data-id").from(down);
+        },
+
 
         /**
          * get the content by item id

@@ -19,7 +19,7 @@
             currentItemElement = wp.getElementByitemId(currentItemId),
             prevItemElement = wp.getPrevElementItemByItemId(currentItemId),
             prevItemId = prevItemElement && dom.getAttribute("data-id").from(prevItemElement);
-
+        composer.hideEditArea(composer.getUseHoverEditArea());
         if(prevItemElement){
             dom.insert(currentItemElement).into(prevItemElement.querySelector(".children"));
             composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
@@ -39,7 +39,7 @@ workpad.views.Composer.commandCenter.outdentItem = {
             currentItemElement = wp.getElementByitemId(currentItemId),
             parentItemElement = wp.getParentElementByitemId(currentItemId),
             parentItemId = parentItemElement && dom.getAttribute("data-id").from(parentItemElement);
-
+        composer.hideEditArea(composer.getUseHoverEditArea());
         if(parentItemElement){
             dom.insert(currentItemElement).after(parentItemElement);
             composer.setEditAreaWithItemIdForContent(editArea,currentItemId);
