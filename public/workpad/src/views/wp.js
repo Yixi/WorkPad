@@ -64,15 +64,21 @@
 
         /** get the up down */
 
-        getTheUpElementByItemId: function(itemid){
+        getTheUpElementByItemId: function(itemid,isStack){
             var current = this.getElementByitemId(itemid);
-            var prev_tmp = this.getPrevElementItemByItemId(itemid);
+            if(isStack){
+                var prev_tmp = current;
+            }else{
+                var prev_tmp = this.getPrevElementItemByItemId(itemid);
+            }
             if(prev_tmp){
                 var prev_tmp_id = dom.getAttribute("data-id").from(prev_tmp);
                 if(this.haveChildrenWithId(prev_tmp_id)){
-                    return this.getLastChildElementByItemId(prev_tmp_id);
+                    var prev_last_child_tmp =  this.getLastChildElementByItemId(prev_tmp_id);
+                    return this.getTheUpElementByItemId(dom.getAttribute("data-id").from(prev_last_child_tmp),true);
+                }else{
+                    return prev_tmp;
                 }
-                return prev_tmp;
             }
             var parent_tmp = this.getParentElementByitemId(itemid);
             return parent_tmp;
