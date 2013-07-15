@@ -41,6 +41,9 @@
     };
 
     setSelection = function(ele, startOffset, endOffset){
+        if(startOffset == 'last'){
+            startOffset = ele.value.length;
+        }
         var offsets = adjustOffsets(ele, startOffset, endOffset);
         ele.selectionStart = offsets.start;
         ele.selectionEnd = offsets.end;

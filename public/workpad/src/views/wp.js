@@ -62,6 +62,14 @@
             }
         },
 
+        /**
+         * get the total bullet point number;
+         * @returns {number}
+         */
+        getLength:function(){
+            return this.element.querySelectorAll(".item").length;
+        },
+
         /** get the up down */
 
         getTheUpElementByItemId: function(itemid,isStack){
@@ -182,6 +190,23 @@
             //TODO:finish this function
 
             return true; // for test default is all expand.
+        },
+
+        /*remove bullet point by id*/
+        removeItemByID:function(itemid){
+            var ele = this.getElementByitemId(itemid);
+            ele.parentNode.removeChild(ele);
+        },
+
+        /**
+         * return the bullet point have description.
+         * @param itemid
+         * @returns {boolean}
+         */
+        haveDescriptionWithID:function(itemid){
+            //TODO: finish this function
+
+            return false;
         },
 
         /**-------------------

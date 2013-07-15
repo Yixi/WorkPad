@@ -45,6 +45,14 @@
             element.appendChild(this.editArea);
         },
 
+        focus:function(){
+            this.getRealNode().focus();
+        },
+
+        blur:function(){
+            this.getRealNode().blur();
+        },
+
         getEditArea:function(){
             return this.editArea;
         },

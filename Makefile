@@ -36,6 +36,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/dom/edit_area.js \
   ${BASEURI}/src/commands.js \
   ${BASEURI}/src/commands/add_item.js \
+  ${BASEURI}/src/commands/backspace.js \
   ${BASEURI}/src/commands/indent.js \
   ${BASEURI}/src/commands/move.js \
   ${BASEURI}/src/views/view.js \
@@ -44,6 +45,7 @@ WORKPAD_FILES = ${BASEURI}/src/workpad.js \
   ${BASEURI}/src/views/composer.dispatcher.js \
   ${BASEURI}/src/views/composer.commands.js \
   ${BASEURI}/src/views/commands/add_item.js \
+  ${BASEURI}/src/views/commands/backspace.js \
   ${BASEURI}/src/views/commands/sync_content.js \
   ${BASEURI}/src/views/commands/indent.js \
   ${BASEURI}/src/views/commands/move.js \

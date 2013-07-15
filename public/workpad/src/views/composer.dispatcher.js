@@ -20,6 +20,11 @@
             that.commandExec("addItem");
         });
 
+        editor.on("backspace:dispatcher",function(event){
+            util.debug("Editor on Event:","backspace:dispatcher").info();
+            that.commandExec("backspace",event);
+        });
+
         editor.on("indentItem:dispatcher",function(){
            util.debug("Editor on Event:", "indentItem:dispatcher").info();
            that.commandExec("indentItem");
@@ -39,6 +44,7 @@
             util.debug("Editor on Event:", "editAreaMoveDown:dispatcher").info();
             that.commandExec("moveDown");
         });
+
     };
 
 })(workpad);

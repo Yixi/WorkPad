@@ -49,6 +49,8 @@
                 }else if(keyCode === KEYS.DOWN_KEY){
                     event.preventDefault();
                     that.commands.exec("moveDown");
+                }else if(keyCode === KEYS.BACKSPACE_KEY){
+                    that.commands.exec("backspace",event);
                 }
             };
 
