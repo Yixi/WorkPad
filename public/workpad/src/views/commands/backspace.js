@@ -151,8 +151,6 @@
                      */
 
                     event.preventDefault();
-                    var theNextElement = wp.getNextElementItemByItemId(currentItemId),
-                        theNextItemId = theNextElement && dom.getAttribute("data-id").from(theNextElement);
                     wp.removeItemByID(currentItemId);
                     if(theUpElementId){
                         composer.setEditAreaWithItemIdForContent(editArea,theUpElementId);
