@@ -66,9 +66,11 @@
         })
         that.editAreaA.handleContentChange(function(event){
             that.commandExec("syncContent",that.editAreaA);
+            that.resizeEditAreaHeightWithContent(that.editAreaElementA);
         });
         that.editAreaB.handleContentChange(function(event){
             that.commandExec("syncContent",that.editAreaB);
+            that.resizeEditAreaHeightWithContent(that.editAreaElementB);
         });
 
         // ----- set the editArea location -----
@@ -77,6 +79,10 @@
                 itemid = dom.getAttribute("data-id").from(itemEle);
             that.setEditAreaWithItemIdForContent(that.getUseHoverEditArea(),itemid);
         });
+//        dom.delegate(element,".content","mouseout",function(event){
+//            var itemEle = dom.getParentElement(event.target,{nodeName:"DIV",className:"item"}),
+//                itemid = dom.getAttribute("data-id")
+//        });
 
     }
 

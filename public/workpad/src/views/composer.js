@@ -58,6 +58,17 @@
             dom.setAttributes({"data-id":itemid,"data-type":"content"}).on(editarea.getEditArea());
         },
 
+        resizeEditAreaHeightWithContent:function(editareaElement){
+            var currentId = dom.getAttribute("data-id").from(editareaElement);
+            if(currentId){
+                var editAreaHeight = dom.offset(editareaElement).get().height;
+                var contentHeight = dom.offset(this.wp.getContentElementById(currentId)).get().height;
+                if(editAreaHeight!==contentHeight){
+                    dom.offset(editareaElement).set({height:contentHeight});
+                }
+            }
+        },
+
         hideEditArea:function(editarea){
             dom.offset(editarea.getEditArea()).set({top:0,left:0});
             editarea.getEditArea().style.display = "none";

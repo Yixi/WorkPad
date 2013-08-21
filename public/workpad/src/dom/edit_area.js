@@ -79,6 +79,7 @@
         handleContentChange:function(fn){
             var ele = this.getRealNode();
             ele.addEventListener("input",fn,false);
+            ele.addEventListener("paste",fn,false);
         },
 
         /**
@@ -92,7 +93,7 @@
          */
         _createTextArea:function(){
             var that = this,
-                textareaWrapper = doc.createElement("div");
+                textareaWrapper = doc.createElement("div"),
                 textarea = doc.createElement("textarea");
             textareaWrapper.className = "workpad-editArea editor";
             textareaWrapper.appendChild(textarea);
